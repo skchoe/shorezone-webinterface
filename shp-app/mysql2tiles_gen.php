@@ -5,6 +5,7 @@ try
   require_once (dirname(__FILE__)."/mysql_utils.php");
   require_once (dirname(__FILE__)."/table_names.php");
   require_once (dirname(__FILE__)."/../db2tile/db_credentials.php");
+  require_once (dirname(__FILE__)."/../db2tile/tile_colors.php");
   require_once (dirname(__FILE__)."/../db2tile/vizUtils.inc.php");
 }
 catch (Exception $e)
@@ -14,7 +15,7 @@ catch (Exception $e)
 set_time_limit(3600*24*7); // a week.
 ini_set('memory_limit',-1);
 
-echo "----DB login info:".$db_host.", ".$db_name.", ".$db_pass."</br>";
+//echo "----DB login info:".$db_host.", ".$db_name.", ".$db_pass."</br>";
 
 $db_connect_info = array();
 $db_connect_info['host'] = $db_host;

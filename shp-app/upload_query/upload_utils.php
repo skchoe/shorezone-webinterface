@@ -1,4 +1,5 @@
 <?php
+
 set_time_limit(3600*24*3);
 ini_set('memory_limit', -1);
 // include upload class
@@ -250,7 +251,7 @@ function echo_tilelink_table($shp_name, $tbl_dst, $tbl_dbf,
 	$arr_arr = $tcont[2];
 
 	//echo "field count = $field_cnt </br>";
-	echo "Warning </br>the location of bubble at the next page when you click the link in the cell of following table is not correct, sometimes</br>";
+	//echo "Warning </br>the location of bubble at the next page when you click the link in the cell of following table is not correct, sometimes</br>";
 	$url_open = "";
 	//$php_target = "http://96.126.100.16/wss_maps/shp-app/upload_query/viz_records.php";
 	$php_target = "viz_records.php";

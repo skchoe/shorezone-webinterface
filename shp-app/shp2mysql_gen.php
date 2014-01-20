@@ -23,7 +23,7 @@ $options = array('noparts' => false);
 
 echo "Filename: ".$filename.", tbl1: ".$table_name_shp.", tbl2: ".$table_name_dbf.", Geo Type: ".$geotype."</br>";
 
-//echo "----DB login info:".$db_host.", ".$db_name.", ".$db_pass.", ".$database."</br>";
+echo "----DB login info:".$db_host.", ".$db_name.", ".$db_pass.", ".$database."</br>";
 $db_connect_info = array();
 $db_connect_info['host'] = $db_host;
 $db_connect_info['user'] = $db_name;
