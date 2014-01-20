@@ -131,6 +131,7 @@ function create_dst_tbl($dbname, $tblname, $dbf_header_column0, $geotype)
       numparts int NOT NULL,
       numpoints int NOT NULL,
       polygons ".$geotype." NOT NULL,
+      color varchar(7) NULL,
       SPATIAL KEY (polygons),
       PRIMARY KEY (".$pri_key_name.")
     );";

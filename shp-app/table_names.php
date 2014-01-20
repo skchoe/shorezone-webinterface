@@ -79,14 +79,17 @@ catch (Exception $e)
 //$filename = "../shp/iucn_amphibians/AMPHGYMNOPHIONA.shp";
 
 // Puget sound project : ShoreZone Inventory
+// SRC: $(HOME)/git-repositories/shorezone-webinterface/shp-app
+// DATA: $(HOME)/mapdata/DNR_ShoreZone_Working/szinv_wgs84
+$posShoreZoneShape = "../../../mapdata/DNR_ShoreZone_Working/szinv_wgs84";
 #szpoly geom_type=3
-#$filename = "../DNR_ShoreZone_Working/szinv_wgs84/szpoly.shp";
+#$filename = $posShoreZoneShape."/szpoly.shp";
 #szline geom_type=3
-#$filename = "../DNR_ShoreZone_Working/szinv_wgs84/szline.shp";
+#$filename = $posShoreZoneShape."/szline.shp";
 #szpt geom_type=1
-#$filename = "../DNR_ShoreZone_Working/szinv_wgs84/szpt.shp";
+#$filename = $posShoreZoneShape."/szpt.shp";
 #szlnend geom_type=1
-$filename = "../DNR_ShoreZone_Working/szinv_wgs84/szlnend.shp";
+$filename = $posShoreZoneShape."/szlnend.shp";
 
 // defining table name
 $shp_name = extract_shp_name ($filename);
