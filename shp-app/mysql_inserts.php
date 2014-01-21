@@ -5,6 +5,7 @@ ini_set('memory_limit', -1);
 while (ob_get_level()) ob_end_flush();
 
 require_once(dirname(__FILE__).'/mysql_utils.php');
+require_once(dirname(__FILE__).'/../build_db/shp2mysql.php');
 
 function connect_db_create_tbl($db_conn, $tbl_name_shp, $tbl_name_dbf, $shp_meta, $geotype)
 {
@@ -159,6 +160,8 @@ function shp2insertquery($shp, $geotype, $tbl_name_shp, $tbl_name_dbf, $pri_key_
     $mg_string = $shp2wkt->convert ($rec_numparts, $part_array);
     echo "after convert to wkt to:</br>";
 
+$color = 1234565;
+
     // {source_gri, min-max, n-parts, n-points, WKT} -> mysql record
     $query_insert_dst = "INSERT INTO ".$tbl_name_shp." set ".
       $pri_key_name."=".$record_identifier.",
@@ -168,6 +171,7 @@ function shp2insertquery($shp, $geotype, $tbl_name_shp, $tbl_name_dbf, $pri_key_
       ymax=".$ymax.",
       numparts=".$rec_numparts.",
       numpoints=".$rec_numpoints.",
+      color=".$color.",
       polygons=GEOMFROMTEXT('".$mg_string."')";
 
     echo "Query to insert DST</br>";

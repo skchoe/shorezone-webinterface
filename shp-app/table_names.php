@@ -23,14 +23,16 @@ catch (Exception $e)
 //$filename = "../shp/iucn_reptiles/REPTILES.shp";
 
 // tile
+$firenzeloc = "../../../mapdata/firenze";
 // http://mapnik-utils.googlecode.com/svn/data/
 // 246 .. db done
-//$filename = "../shp/mapnik/tm_wgs84_sans_antarctica.shp";
-//$filename = "../shp/mapnik/north_pacific_ecoregions.shp";
-//$filename = "../shp/mapnik/states.shp";
-//$filename = "../shp/mapnik/statep020.shp";
-//$filename = "../shp/mapnik/world_borders.shp";
-//$filename = "../shp/mapnik/world_boundaries_m.shp";
+//$filename = $firenzeloc."/tm_wgs84_sans_antarctica.shp";
+//$filename = $firenzeloc."/north_pacific_ecoregions.shp";
+$filename = $firenzeloc."/states.shp";
+#szpoly geom_type=3
+//$filename = $firenzeloc."/statep020.shp";
+//$filename = $firenzeloc."/world_borders.shp";
+//$filename = $firenzeloc."/world_boundaries_m.shp";
 
 // 38 .. db done - only one row (check it)
 // tile
@@ -81,15 +83,15 @@ catch (Exception $e)
 // Puget sound project : ShoreZone Inventory
 // SRC: $(HOME)/git-repositories/shorezone-webinterface/shp-app
 // DATA: $(HOME)/mapdata/DNR_ShoreZone_Working/szinv_wgs84
-$posShoreZoneShape = "../../../mapdata/DNR_ShoreZone_Working/szinv_wgs84";
-#szpoly geom_type=3
-#$filename = $posShoreZoneShape."/szpoly.shp";
-#szline geom_type=3
-#$filename = $posShoreZoneShape."/szline.shp";
-#szpt geom_type=1
-#$filename = $posShoreZoneShape."/szpt.shp";
-#szlnend geom_type=1
-$filename = $posShoreZoneShape."/szlnend.shp";
+//$posShoreZoneShape = "../../../mapdata/DNR_ShoreZone_Working/szinv_wgs84";
+//$szpoly geom_type=3
+//$filename = $posShoreZoneShape."/szpoly.shp";
+//$szline geom_type=3
+//$filename = $posShoreZoneShape."/szline.shp";
+//$szpt geom_type=1
+//$filename = $posShoreZoneShape."/szpt.shp";
+//$szlnend geom_type=1
+//$filename = $posShoreZoneShape."/szlnend.shp";
 
 // defining table name
 $shp_name = extract_shp_name ($filename);

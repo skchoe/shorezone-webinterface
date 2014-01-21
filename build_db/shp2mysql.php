@@ -11,53 +11,6 @@ function extract_shp_name($filename)
   return $bodies[0];
 }
 
-// in db-connect info
-// out: connection
-function connect_db($ip, $login, $pwd, $dbname)
-{
-  $conn = mysql_connect($ip, $login, $pwd)
-  or die("Connect DB server error");
-
-  if ($conn == FALSE) echo "FALSE - Fail to connect db server";
-  else {
-	echo "TRUE- connected to db server of ".$dbname."</br>";
-	flush();
-	ob_flush();
-  }
-  $db_list = mysql_list_dbs($conn);
-
-  $i = 0;
-  $exist_db = FALSE;
-  $cnt = mysql_num_rows($db_list);
-  echo "<br />db list -> <br />";
-  while ($i < $cnt) {
-    $db_name = mysql_db_name($db_list, $i);
-    echo $db_name . "<br />";
-    if ($db_name == $dbname)
-  	$exist_db = TRUE;
-    $i++;
-  }
-  flush();
-  ob_flush();
-
-  // DB creation, use
-  if ($exist_db == TRUE)
-    echo $dbname." exists <br />";
-  else {
-    echo $dbname." not exists <br />";
-    $query_db_create = "CREATE DATABASE $dbname";
-    $dbc = mysql_query($query_db_create);
-    if($dbc==TRUE) echo "creation of db good<br />";
-    else echo "creation of db failed <br />";
-    //mysql_free_result($dbc); ->doesn't need : too light result.
-  }
-  @mysql_select_db($dbname)
-  or die("Could not select database!");
-
-  echo "You're connected to a MySQL database!----".$conn."<br />";
-  return $dbname;
-}
-
 function table_exist($dbname, $tblname)
 {
   // Table listup/creation
@@ -107,23 +60,23 @@ function get_mysqltype_from_dbf_header($dbf_type, $dbf_length)
   return $out_string;
 }
 
-function create_dst_tbl($dbname, $tblname, $dbf_header_column0, $geotype)
+function create_dst_tbl($dbname, $tblname, $pri_key_name, $geotype)
 {
-  if(table_exist ($dbname, $tblname)){
-    echo "table ".$tblname." already exist ... do nothing</br>";
-    return $tblname;
+  if(table_exist ($dbname, $tblname))
+  {
+    echo "table ".$tblname." exist ... recreate</br>";
+    $drop = "DROP TABLE ".$tblname.";";
+    $dr = mysql_query($drop);
+    if($dr == FALSE) die ("dropping dst tbl failed");
   }
-
-  foreach($dbf_header_column0 as $key => $value) {
-    echo $tblname." - ".$key."=>".$value."</br>";
+  else 
+  {  
+    "table $tblname doesn't exist -> query for creation</br>";
   }
-
-  $pri_key_name = $dbf_header_column0["name"];
-  $column0_type = get_mysqltype_from_dbf_header($dbf_header_column0["type"], $dbf_header_column0["length"]);
 
   $query_for_create_tbl
     = "CREATE TABLE ".$tblname." (".
-      $pri_key_name." ".$column0_type." NOT NULL,
+      $pri_key_name." BIGINT UNSIGNED NOT NULL,
       xmin double NOT NULL,
       ymin double NOT NULL,
       xmax double NOT NULL,
@@ -131,10 +84,10 @@ function create_dst_tbl($dbname, $tblname, $dbf_header_column0, $geotype)
       numparts int NOT NULL,
       numpoints int NOT NULL,
       polygons ".$geotype." NOT NULL,
-      color varchar(7) NULL,
+      color varchar(7) NOT NULL,
       SPATIAL KEY (polygons),
       PRIMARY KEY (".$pri_key_name.")
-    );";
+    ) ENGINE = MYISAM;";
   echo "bulid_db/shp2mysql: QUERY:".$query_for_create_tbl."</br>";
   $cr = mysql_query($query_for_create_tbl);
   if ($cr==TRUE) echo "success_dst_tbl _creation<br />";
@@ -144,37 +97,37 @@ function create_dst_tbl($dbname, $tblname, $dbf_header_column0, $geotype)
   return $tblname;
 }
 
-function create_dbf_tbl($dbname, $tblname, $dbfHeader)
+function create_dbf_tbl($dbname, $tblname, $dbfHeader, $pri_key_name)
 {
   if(table_exist ($dbname, $tblname)){
-    echo "table ".$tblname." already exist ... exit</br>";
-    return $tblname;
+    echo "table ".$tblname." already exist ... return the table name</br>";
+    $drop = "DROP TABLE ".$tblname.";";
+    $dr = mysql_query($drop);
+    if($dr == FALSE) die ("dropping dst tbl failed");
   }
 
-  $cr = mysql_query($query_for_create_tbl);
-  if (cr==TRUE) echo "success_tbl _creation<br />";
-  else echo "fail to create table <br />";
-  //mysql_free_result($cr); ->doesn't need because return is small
-
-  $column_string = "";
+  //$column_string = $pri_key_name." BIGINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,";
+  $column_string = $pri_key_name." BIGINT UNSIGNED,"; //give up: identifierness, copy of record_number of shape file.
   for ($i = 0; $i < count($dbfHeader) ; $i++) {
-    foreach ($dbfHeader[$i] as $key => $value){
-      echo $key . "=>" . $value . ", ";
-    }
+    //foreach ($dbfHeader[$i] as $key => $value){
+    //  echo $key . "=>" . $value . ", ";
+    // }
     $name = $dbfHeader[$i]["name"];
     $type = $dbfHeader[$i]["type"];
     $len = $dbfHeader[$i]["length"];
     $mysql_type = get_mysqltype_from_dbf_header($type, $len);
     $column_string = $column_string." ".$name." ".$mysql_type.",";
   }
-  $column_string = $column_string." PRIMARY KEY (".$dbfHeader[0]["name"].")";
+  $column_string = $column_string." PRIMARY KEY (".$pri_key_name.")";
   $query_for_create_tbl
     = "CREATE TABLE ".$tblname." (".$column_string.");";
 
-  //echo "query_for_create_tbl = ".$query_for_create_tbl."</br>";
+  echo "query_for_create_tbl = ".$query_for_create_tbl."</br>";
   $cr = mysql_query($query_for_create_tbl);
   if ($cr==TRUE) echo "success_dbf_tbl _creation<br />";
-  else echo "fail to create dbf_table <br />";
+  else { echo "fail to create dbf_table <br />";
+        die("dbf tbl not created");
+  }
   //mysql_free_result($cr); ->doesn't need because return is small
 
   return $tblname;
@@ -242,7 +195,8 @@ function insert_dst_table($shp_record)
     ymax=".$ymax.",
     numparts=".$shp_numparts.",
     numpoints=".$shp_numpoints.",
-    polygons=GEOMFROMTEXT('".$mp_string."')";
+    polygons=GEOMFROMTEXT('".$mp_string."'),
+    color=".$color."\"";
   $result_insert = mysql_query($query_insert);
   if($result_insert==TRUE) echo "insert ---***(((".$k."))) success ".$result_insert." : ".$shp_numpoints." points ".$shp_numparts." parts<br/>";
   else echo "insert --- $result_insert : fails<br />";
