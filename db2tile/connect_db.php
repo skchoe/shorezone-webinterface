@@ -57,20 +57,20 @@ if (!$resulttbls) {
 
 $species_dst_tbl = "species_dst_tbl";
 $b_tbl_exist = FALSE;
-while ($row = mysql_fetch_row($resulttbls)) {
-  echo "Table--------------: {$row[0]}<br />";
+while ($row = mysql_fetch_row($resulttbls)) 
+{
+  //echo "Table--------------: {$row[0]}<br />";
   if ($species_dst_tbl == $row[0]) {
-	echo "test table exists<br />";
+	//echo "test table exists<br />";
 	$b_tbl_exist = TRUE;
 	break;
   }
-  else echo "{$row[0]} isn't same as {$species_dst_tbl}. <br />";
- }
+  //else echo "{$row[0]} isn't same as {$species_dst_tbl}. <br />";
+}
 
-if ($b_tbl_exist == TRUE)
-  echo "dst_tbl found<br/>";
- else {
-   echo "Couldn't find table ---> creation<br />";
+if ($b_tbl_exist != TRUE)
+{
+   //echo "Couldn't find table ---> creation<br />";
    $query_for_create_tbl
 	 = "CREATE TABLE ".$species_dst_tbl." (
        source_gri char(16) NOT NULL,
@@ -88,9 +88,9 @@ if ($b_tbl_exist == TRUE)
        );";
 
    $cr = mysql_query($query_for_create_tbl);
-   if (cr==TRUE) echo "success_tbl _creation<br />";
-   else echo "fail to create table <br />";
- }
+   //if (cr==TRUE) echo "success_tbl _creation<br />";
+   //else echo "fail to create table <br />";
+}
 
 // Create and execute query.
 $query3 = "DESCRIBE ".$species_dst_tbl;

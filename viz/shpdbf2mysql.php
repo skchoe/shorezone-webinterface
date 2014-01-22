@@ -64,20 +64,19 @@ if (!$resulttbls) {
 
 $b_tbl_exist = FALSE;
 while ($row = mysql_fetch_row($resulttbls)) {
-  echo "Table--------------: {$row[0]}<br />";
+  //echo "Table--------------: {$row[0]}<br />";
   if ($species_feature_tbl == $row[0]) {
 	echo "test table exists<br />";
 	$b_tbl_exist = TRUE;
 	break;
   }
-  else echo "{$row[0]} isn't same as {$species_feature_tbl}. <br />";
+  //else echo "{$row[0]} isn't same as {$species_feature_tbl}. <br />";
  }
 //mysql_free_result($resulttbls);
 
-if ($b_tbl_exist == TRUE)
-  echo "dst_tbl found<br/>";
- else {
-   echo "Couldn't find table ---> creation<br />";
+if ($b_tbl_exist != TRUE)
+{
+   //echo "Couldn't find table ---> creation<br />";
    $query_for_create_tbl
     = "CREATE TABLE ".$species_feature_tbl." (
        source_gri char(16) NOT NULL,
@@ -96,11 +95,11 @@ if ($b_tbl_exist == TRUE)
        PRIMARY KEY (source_gri)
        );";
 
-   $cr = mysql_query($query_for_create_tbl);
-   if (cr==TRUE) echo "success_tbl _creation<br />";
-   else echo "fail to create table <br />";
-	//mysql_free_result($cr);
- }
+    $cr = mysql_query($query_for_create_tbl);
+    //if (cr==TRUE) echo "success_tbl _creation<br />";
+    //else echo "fail to create table <br />";
+    //mysql_free_result($cr);
+}
 
 // Create and execute query. to test table creation
 $query3 = "DESCRIBE ".$species_feature_tbl;

@@ -69,20 +69,19 @@ if (!$resulttbls) {
 
 $b_tbl_exist = FALSE;
 while ($row = mysql_fetch_row($resulttbls)) {
-  echo "Table--------------: {$row[0]}<br />";
+  //echo "Table--------------: {$row[0]}<br />";
   if ($species_dst_tbl == $row[0]) {
-	echo "test table exists<br />";
+	//echo "test table exists<br />";
 	$b_tbl_exist = TRUE;
 	break;
   }
-  else echo "{$row[0]} isn't same as {$species_dst_tbl}. <br />";
+  //else echo "{$row[0]} isn't same as {$species_dst_tbl}. <br />";
  }
 //mysql_free_result($resulttbls);
 
-if ($b_tbl_exist == TRUE)
-  echo "dst_tbl found<br/>";
- else {
-   echo "Couldn't find table ---> creation<br />";
+if ($b_tbl_exist != TRUE)
+{
+   //echo "Couldn't find table ---> creation<br />";
    $query_for_create_tbl
    /*	 = "CREATE TABLE glacier ( id int NOT NULL, border polygon NOT NULL, SPATIAL KEY(border), PRIMARY KEY(id)) ENGINE = MYISAM;";
 	*/

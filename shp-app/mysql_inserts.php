@@ -137,7 +137,7 @@ function shp2insertquery($shp, $geotype, $tbl_name_shp, $tbl_name_dbf, $pri_key_
     $valid_layer_counter ++;
 
     $rec_numparts = 1;
-    $part_array = [];
+    $part_array = array();
     if($geo_type != $GEOTYPE_POINT)
     {
       $rec_numparts = $geom_data["numparts"];

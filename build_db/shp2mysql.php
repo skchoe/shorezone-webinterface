@@ -23,21 +23,22 @@ function table_exist($dbname, $tblname)
    }
   
   $b_tbl_exist = FALSE;
-  while ($row = mysql_fetch_row($resulttbls)) {
-    echo "Table--------------: {$row[0]}<br />";
+  while ($row = mysql_fetch_row($resulttbls)) 
+  {
+    //echo "Table--------------: {$row[0]}<br />";
     if ($tblname == $row[0]) {
-  	echo "test table exists: ".$tblname."<br />";
+  	//echo "test table exists: ".$tblname."<br />";
   	$b_tbl_exist = TRUE;
   	break;
     }
-    else echo "{$row[0]} isn't same as {$tblname}. <br />";
+    //else echo "{$row[0]} isn't same as {$tblname}. <br />";
   }
   //mysql_free_result($resulttbls);
   
-  if ($b_tbl_exist == TRUE)
-    echo "dst_tbl found<br/>";
-  else
-    echo "Couldn't find table ---> creation<br />";
+  //if ($b_tbl_exist == TRUE)
+  //  echo "dst_tbl found<br/>";
+  //else
+  //  echo "Couldn't find table ---> creation<br />";
  
   return $b_tbl_exist;
 }
