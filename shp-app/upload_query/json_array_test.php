@@ -4,7 +4,7 @@ $arr1 = array(1, 2, 3, 4, 5);
 $shp_name = 'states';
 
 $phparray = array();
-if($dir_handler = opendir(dirname(__FILE__)."/../../tiles/".$shp_name)) {
+if($dir_handler = opendir(dirname(__FILE__)."/../../../tiles/".$shp_name)) {
 	while (FALSE != ($ntt = readdir($dir_handler))) {
 		if($ntt != "." && $ntt != "..") { 
 			echo $ntt."</br>";

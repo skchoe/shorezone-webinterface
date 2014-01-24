@@ -3,6 +3,7 @@ require_once(dirname(__FILE__)."/../viz/dataUtils.inc.php");
 require_once(dirname(__FILE__)."/../viz/GoogleMapUtility.php");
 require_once(dirname(__FILE__)."/../viz/gdlib_colors.php");
 require_once(dirname(__FILE__)."/../shp-app/clipping.php");
+require_once(dirname(__FILE__)."/../db2tile/tile_colors.php");
 
 
 function create_folder_chmod($folder_path)
@@ -101,6 +102,26 @@ function generatePngFileFromDB($wss_db, $shp_name, $species_id, $Xname, $Yname, 
   }
 }
 
+function miletopixel($radius_in_mile, $latitude, $zoom)
+{
+  $meterpermile = 1609.34;
+  $radius_in_meter = $radius_in_mile * $meterpermile;
+
+  $ang_radian = $latitude * M_PI / 180;
+
+  $earth_cercumf_meter = 40075160;
+
+  // meter per pixel
+  // $mpp = $earth_cercumf_meter / 256 * cos($ang_radian) / pow(2, $zoom);
+
+  // pixels per input mile
+  //return $radius_in_meter / $mpp;
+  $result = round($radius_in_meter * 256 * pow(2, $zoom) / ($earth_cercumf_meter * cos($ang_radian)));
+
+  //echo "MILETOPIXEL.radiusInMeter:".$radius_in_meter.", lattitude:".$latitude.", Zoom:".$zoom.", pixel: ".$result."</br>";
+  return $result;
+}
+
 // given shp object $polygonArrayGeo w/ $cw_bbx_array, we iterate it's parts and draw polygon on given tile.
 function create_pngfile($geotype, $polygonArrayGeo, $cw_bbx_array, $tileX, $tileY, $zoom, 
                         $gxmin, $gxmax, $gymin, $gymax, $file) 
@@ -118,16 +139,16 @@ function create_pngfile($geotype, $polygonArrayGeo, $cw_bbx_array, $tileX, $tile
   $nelng=$swlng+$tileRect->width - $extendx;
 
 
-  echo "tileRec.x: $tileRect->x, tileRec.y: $tileRect->y , tileRec.width: $tileRect->width, tileRec.height: $tileRect->height </br>";
-  echo "swlat -> "; print_r($swlat); echo " nelat -> "; print_r($nelat); 
-  echo "swlng -> "; print_r($swlng); echo " nelng -> "; print_r($nelng); 
-  echo "</br>";
+  //echo "tileRec.x: $tileRect->x, tileRec.y: $tileRect->y , tileRec.width: $tileRect->width, tileRec.height: $tileRect->height </br>";
+  //echo "swlat -> "; print_r($swlat); echo " nelat -> "; print_r($nelat); 
+  //echo "swlng -> "; print_r($swlng); echo " nelng -> "; print_r($nelng); 
+  //echo "</br>";
 
-  echo "BBX for whole Shp object (union of parts) minx maxx,  miny maxy = ".$gxmin.", ".$gxmax.", ".$gymin.", ".$gymax."</br>";
+  //echo "BBX for whole Shp object (union of parts) minx maxx,  miny maxy = ".$gxmin.", ".$gxmax.", ".$gymin.", ".$gymax."</br>";
 
-  echo "createpngfile</br>";
-  print_r($polygonArrayGeo);
-  echo "<<<-those are input polygon</br>";
+  //echo "createpngfile</br>";
+  //print_r($polygonArrayGeo);
+  //echo "<<<-those are input polygon</br>";
   
   // Filter out non-intersecting cases between tile and given global extent
   $b_bbx_tile = ($swlng > $gxmax) || ($nelng < $gxmin) || ($swlat < $gymin) || ($nelat > $gymax);
@@ -142,10 +163,10 @@ function create_pngfile($geotype, $polygonArrayGeo, $cw_bbx_array, $tileX, $tile
   // check if numpart and num-cwflag-array are same:
   $num_part = count($polygonArrayGeo); 
   $num_flag = count($cw_bbx_array);
-  if ($num_part == $num_flag) echo "Geo part, CW array are same in length</br>";
-  else echo "Geo part, CW array are not same in length</br>";
+  //if ($num_part == $num_flag) echo "Geo part, CW array are same in length</br>";
+  //else echo "Geo part, CW array are not same in length</br>";
 
-  echo "Num_Part: ".$num_part."</br>";
+  //echo "Num_Part: ".$num_part."</br>";
 
 
   //create a new image
@@ -210,12 +231,14 @@ function create_pngfile($geotype, $polygonArrayGeo, $cw_bbx_array, $tileX, $tile
     //echo "Origin: $orig->x, $orig->y </br>";
 
     $pixel_array = array();
+    $latitude_array = array();
     $numpt = count($part) / 2;
     for ($p = 0 ; $p < $numpt ; $p++) 
     {
       $c = $p * 2; 
       $x = $part[$c];
       $y = $part[$c+1];
+      $latitude_array[] = $y;
       $pxl = GoogleMapUtility::toZoomedPixelCoords($y, $x, $zoom);
       $pixel_array[] = $pxl->x - $orig->x;
       $pixel_array[] = $pxl->y - $orig->y;
@@ -237,47 +260,44 @@ function create_pngfile($geotype, $polygonArrayGeo, $cw_bbx_array, $tileX, $tile
     else if($geotype == Shape2Wkt::$GEOTYPE_MULTILINESTRING)	
     {
       echo "create_pngfile: geotype is: linestring</br>";
+      $radius_in_mile = 0.25; // total thickness of line = 2*radius_in_mile
       // Set the line thickness to 10
-      imagesetthickness($img, 25);
       $numpixels = count($pixel_array) / 2;
 
       if(2 <= $numpixels)
       {
         $x1 = $pixel_array[0];
         $y1 = $pixel_array[1];
+	$latitude1 = $latitude_array[0];
+	$radpix1 = miletopixel($radius_in_mile, $latitude1, $zoom);
         for($p = 1 ; $p < $numpixels; $p++)
         {
           $idx = 2 * $p;
           $x2 = $pixel_array[$idx];
           $y2 = $pixel_array[$idx + 1];
-          imageline($img, $x1, $y1, $x2, $y2, $interiorColor);
+	  $latitude2 = $latitude_array[$p];
+	  $radpix2 = miletopixel($radius_in_mile, $latitude2, $zoom);
+	  //echo "thick in pixel: thick1--".$radpix1.", thick2--".$radpix2."</br>";
+          imagelinethick2($img, $x1, $y1, $x2, $y2, $interiorColor, 2 * $radpix1, 2 * $radpix2);
           $x1 = $x2;
           $y1 = $y2;
+          $radpix1 = $radpix2;
         }
       }
-/* TEST POINTING
-      for($p = 0 ; $p < $numpixels ; $p++)
-      {
-        $idx = 2 * $p;
-        $x = $pixel_array[$idx];
-        $y = $pixel_array[$idx + 1];
-        $diameterPixel = 20;
-        imagefilledellipse($img, $x, $y, $diameterPixel, $diameterPixel, $interiorColor);
-      }
-*/
     }
     else if($geotype == Shape2Wkt::$GEOTYPE_MULTIPOINT)	
     {
       echo "create_pngfile: geotype is: point</br>";
       // Set the point thickness to 10
-      $diameterPixel = 50;
       $numpixels = count($pixel_array) / 2;
       for($p = 0 ; $p < $numpixels ; $p++)
       {
         $idx = 2 * $p;
         $x = $pixel_array[$idx];
         $y = $pixel_array[$idx + 1];
-        imagefilledellipse($img, $x, $y, $diameterPixel, $diameterPixel, $interiorColor);
+        $radius_in_mile = 0.25; // total thickness of line = 2*radius_in_mile
+	$radpix = miletopixel($radius_in_mile, $y, $zoom);
+        imagefilledellipse($img, $x, $y, $radpix, $radpix, $interiorColor);
       }
     }
     else 

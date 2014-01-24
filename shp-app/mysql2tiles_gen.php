@@ -28,9 +28,6 @@ $geotype = $_GET["geotype"]; // either "pick" or "viz"
 $pickorviz = $_GET["pickorviz"]; // either "pick" or "viz"
 
 
-$tile_folder_name = extract_shp_name($filename);
-$zoomLevelMin = 18;//3;
-$zoomLevelMax = 18;//19;
 $imgLimitPerLevel = 4000000; // check later why needed.
 
 echo ": ".$filename."->shpname: ".$shp_name.", ".$table_name_shp." ".$table_name_dbf."</br>";
@@ -38,6 +35,6 @@ echo "Filename: ".$filename.", tbl1: ".$table_name_shp.", tbl2: ".$table_name_db
 echo "Pick or viz: ".$pickorviz."</br>";
 
 $neighbor_bound = 0; // not used
-geom_in_db_to_tile_range($db_connect_info, $table_name_shp, $table_name_dbf, $neighbor_bound, $tile_folder_name, $zoomLevelMin, $zoomLevelMax, $imgLimitPerLevel, $geotype, $pickorviz);
+geom_in_db_to_tile_range($db_connect_info, $table_name_shp, $table_name_dbf, $neighbor_bound, $shp_name, $zoomLevelMin, $zoomLevelMax, $imgLimitPerLevel, $geotype, $pickorviz);
 
 ?>

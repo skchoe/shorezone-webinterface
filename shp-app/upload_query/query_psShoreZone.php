@@ -3,6 +3,7 @@
 <?php
   $zoom_start = $_GET["zoom_start"];
   $zoom_end = $_GET["zoom_end"];
+  $zoom_query = $_GET["zoom_query"];
   $rep = $_GET["rep"];
   $pickorviz = $_GET["pickorviz"];
 ?>
@@ -119,7 +120,7 @@
 	// Default location <Olympic Mountain, WA>
 	var setLat = 47.736306;
 	var setLon = -123.4;//-122.361603;   
-	var queryZoom = 18;   
+	var queryZoom = '<?php echo $zoom_query; ?>';   
 	var initZoom = 8;   
 
 	var centerLat = setLat;

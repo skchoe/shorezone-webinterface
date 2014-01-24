@@ -5,6 +5,7 @@ ini_set('memory_limit', -1);
 
 // SHAPE FILE ACCESS
 try {
+require_once (dirname(__FILE__)."/../build_db/shp2mysql.php");
 require_once (dirname(__FILE__)."/../build_db/ShapeFile.inc.php");
 require_once (dirname(__FILE__)."/../build_db/WktUtils.inc.php");
 require_once (dirname(__FILE__)."/mysql_utils.php");
@@ -23,12 +24,12 @@ catch (Exception $e)
 //$filename = "../shp/iucn_reptiles/REPTILES.shp";
 
 // tile
-$firenzeloc = "../../../mapdata/firenze";
+//$firenzeloc = "../../mapdata/firenze";
 // http://mapnik-utils.googlecode.com/svn/data/
 // 246 .. db done
 //$filename = $firenzeloc."/tm_wgs84_sans_antarctica.shp";
 //$filename = $firenzeloc."/north_pacific_ecoregions.shp";
-$filename = $firenzeloc."/states.shp";
+//$filename = $firenzeloc."/states.shp";
 #szpoly geom_type=3
 //$filename = $firenzeloc."/statep020.shp";
 //$filename = $firenzeloc."/world_borders.shp";
@@ -80,14 +81,18 @@ $filename = $firenzeloc."/states.shp";
 // 325 -> first 324 valid, last one has no geometry db done
 //$filename = "../shp/iucn_amphibians/AMPHGYMNOPHIONA.shp";
 
+//////////////////////////////////////////////////////////////////////////////////////
 // Puget sound project : ShoreZone Inventory
 // SRC: $(HOME)/git-repositories/shorezone-webinterface/shp-app
 // DATA: $(HOME)/mapdata/DNR_ShoreZone_Working/szinv_wgs84
-//$posShoreZoneShape = "../../../mapdata/DNR_ShoreZone_Working/szinv_wgs84";
+$posShoreZoneShape = "../../mapdata/DNR_ShoreZone_Working/szinv_wgs84";
+$zoomLevelMin = 3;//13;//3;
+$zoomLevelMax = 18;//13;//19;
+
 //$szpoly geom_type=3
 //$filename = $posShoreZoneShape."/szpoly.shp";
 //$szline geom_type=3
-//$filename = $posShoreZoneShape."/szline.shp";
+$filename = $posShoreZoneShape."/szline.shp";
 //$szpt geom_type=1
 //$filename = $posShoreZoneShape."/szpt.shp";
 //$szlnend geom_type=1

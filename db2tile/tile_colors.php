@@ -65,17 +65,47 @@ function HSVtoRGB(array $hsv)
 }
 
 // TRUE / FALSE
+function imagelinethick2($image, $x1, $y1, $x2, $y2, $color, $thick1 = 1, $thick2 = 1)
+{
+    if ($thick1 == $thick2) 
+    {
+      return imagelinethick($image, $x1, $y1, $x2, $y2, $color, $thick1);
+    }
+    if ($x1 == $x2 || $y1 == $y2) 
+    {
+	$t = round(($thick1 + $thick2) / 2) - 0.5;
+        return imagefilledrectangle($image, round(min($x1, $x2) - $t), round(min($y1, $y2) - $t), round(max($x1, $x2) + $t), round(max($y1, $y2) + $t), $color);
+    }
+    $k = ($y2 - $y1) / ($x2 - $x1); //y = kx + q
+    $div = sqrt(1 + pow($k, 2));
+    $t1 = $thick1 / 2 - 0.5;
+    $t2 = $thick2 / 2 - 0.5;
+    $a1 = $t1 / $div;
+    $a2 = $t2 / $div;
+
+    $points = array(
+        round($x1 - (1+$k)*$a1), round($y1 + (1-$k)*$a1),
+        round($x1 - (1-$k)*$a1), round($y1 - (1+$k)*$a1),
+        round($x2 + (1+$k)*$a2), round($y2 - (1-$k)*$a2),
+        round($x2 + (1-$k)*$a2), round($y2 + (1+$k)*$a2),
+    );
+    imagefilledpolygon($image, $points, 4, $color);
+    return imagepolygon($image, $points, 4, $color);
+}
+
 function imagelinethick($image, $x1, $y1, $x2, $y2, $color, $thick = 1)
 {
     /* this way it works well only for orthogonal lines
     imagesetthickness($image, $thick);
     return imageline($image, $x1, $y1, $x2, $y2, $color);
     */
-    if ($thick == 1) {
+    if ($thick == 1) 
+    {
         return imageline($image, $x1, $y1, $x2, $y2, $color);
     }
     $t = $thick / 2 - 0.5;
-    if ($x1 == $x2 || $y1 == $y2) {
+    if ($x1 == $x2 || $y1 == $y2) 
+    {
         return imagefilledrectangle($image, round(min($x1, $x2) - $t), round(min($y1, $y2) - $t), round(max($x1, $x2) + $t), round(max($y1, $y2) + $t), $color);
     }
     $k = ($y2 - $y1) / ($x2 - $x1); //y = kx + q
