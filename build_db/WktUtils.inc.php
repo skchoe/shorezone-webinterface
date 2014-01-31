@@ -4,9 +4,10 @@ ini_set('memory_limit', -1);
 
 class Shape2Wkt {
 
-  public static  $GEOTYPE_MULTIPOLYGON = "MULTIPOLYGON";
-  public static  $GEOTYPE_MULTILINESTRING = "MULTILINESTRING";
-  public static  $GEOTYPE_MULTIPOINT = "MULTIPOINT";
+  public static $GEOTYPE_MULTIPOLYGON = "MULTIPOLYGON";
+  public static $GEOTYPE_MULTILINESTRING = "MULTILINESTRING";
+  public static $GEOTYPE_MULTIPOINT = "MULTIPOINT";
+  public static $GEOMODEL_THICKNESS = 0.25;
 
   public $geotype = "Multipolygon";
 

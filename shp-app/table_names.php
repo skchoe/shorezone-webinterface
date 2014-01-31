@@ -86,8 +86,8 @@ catch (Exception $e)
 // SRC: $(HOME)/git-repositories/shorezone-webinterface/shp-app
 // DATA: $(HOME)/mapdata/DNR_ShoreZone_Working/szinv_wgs84
 $posShoreZoneShape = "../../mapdata/DNR_ShoreZone_Working/szinv_wgs84";
-$zoomLevelMin = 3;//13;//3;
-$zoomLevelMax = 18;//13;//19;
+$zoomLevelMin = 12;//18;//13;//3;
+$zoomLevelMax = 12;//18;//13;//19;
 
 //$szpoly geom_type=3
 //$filename = $posShoreZoneShape."/szpoly.shp";

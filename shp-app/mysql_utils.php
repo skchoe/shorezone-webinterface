@@ -141,7 +141,7 @@ function mysqltxt_to_wktpolygon($pgn)
   //$array_part_filtered = eliminate_tooclose_points($arrayParts, $neighbor_bound);
   $array_part_filtered = $arrayParts;
 
-  echo "FINAL geo type: ".$geotype." in mysqltxt_to_wktpolygon</br>";
+  //echo "FINAL geo type: ".$geotype." in mysqltxt_to_wktpolygon</br>";
   return $array_part_filtered;
 }
  
@@ -233,11 +233,11 @@ function geom_in_db_to_tile($db_connect_info, $table_name_shp, $table_name_dbf, 
     $prival = mysql_result($result_keys_shp, $count);
     $binomial = mysql_result($result_binomial_dbf, $count);
 
-    echo "prival: $prival from idx:$count </br>";
+    //echo "prival: $prival from idx:$count </br>";
     list($xmin, $xmax, $ymin, $ymax, $nprt, $npt, $pg) = get_sql_geometry($table_name_shp, $prikey_name, $prival);
 
-    echo "element order in shp: $count, numpart: $nprt, numpoint: $npt, prival: $prival, zoomlevel: $zoomLevel </br>";
-    echo "binomial: $binomial </br>";
+    //echo "element order in shp: $count, numpart: $nprt, numpoint: $npt, prival: $prival, zoomlevel: $zoomLevel </br>";
+    //echo "binomial: $binomial </br>";
 
     //if($nprt < 2) continue; // line for generating tiles again for multipolygon
 
@@ -261,18 +261,51 @@ function geom_in_db_to_tile($db_connect_info, $table_name_shp, $table_name_dbf, 
       flush();
       ob_flush();
  */  
-    computeTileImageZoom($tile_folder_name, $prival, $shpelt_geo_info, $zoomLevel, $imgLimitPerLevel, $geotype, $pickorviz);
+    computeTileImageZoom($tile_folder_name, $prival, $shpelt_geo_info, $zoomLevel, 
+                         $imgLimitPerLevel, $geotype, $pickorviz);
   }
   mysql_close();
 }
 
-function geom_in_db_to_tile_range($db_connect_info, $table_name_shp, $table_name_dbf, $neighbor_bound, $tile_folder_name, $zoomLevelMin, $zoomLevelMax, $imgLimitPerLevel, $geotype, $pickorviz)
+function geom_in_db_to_tile_range($db_connect_info, $table_name_shp, $table_name_dbf, 
+                                  $neighbor_bound, $tile_folder_name, 
+                                  $zoomLevelMin, $zoomLevelMax, 
+                                  $imgLimitPerLevel, $geotype, $pickorviz)
 {
-echo "zoom min: $zoomLevelMin, max: $zoomLevelMax </br>";
+  echo "zoom min: $zoomLevelMin, max: $zoomLevelMax </br>";
 
-	for ($zoom=$zoomLevelMin;$zoom<=$zoomLevelMax;$zoom++) {
-		geom_in_db_to_tile($db_connect_info, $table_name_shp, $table_name_dbf, $neighbor_bound, $tile_folder_name, $zoom, $imgLimitPerLevel, $geotype, $pickorviz);
-	}
+  for ($zoom=$zoomLevelMin;$zoom<=$zoomLevelMax;$zoom++) 
+  {
+    geom_in_db_to_tile($db_connect_info, $table_name_shp, $table_name_dbf, 
+                       $neighbor_bound, $tile_folder_name, $zoom, 
+                       $imgLimitPerLevel, $geotype, $pickorviz);
+  }
+}
+
+function compute_bbx_bcw2($part_geom, $geotype)
+{
+  if($geotype == Shape2Wkt::$GEOTYPE_MULTIPOLYGON)
+  {
+    return compute_bbx_bcw($part_geom);
+  }
+  else if($geotype== Shape2Wkt::$GEOTYPE_MULTILINESTRING)
+  {
+    $geoinfo_hash = array();
+    $geoinfo_hash['CW'] = FALSE;
+    $geoinfo_hash['bbx'] = computeBoundingBox($part_geom);
+    return $geoinfo_hash;
+  }
+  else if($geotype == Shape2Wkt::$GEOTYPE_MULTIPOINT)
+  {
+    $geoinfo_hash = array();
+    $geoinfo_hash['CW'] = FALSE;
+    $x = $part_geom[0];
+    $y = $part_geom[1];
+    $dx = Shape2Wkt::$GEOMODEL_THICKNESS / 2;
+    $dy = Shape2Wkt::$GEOMODEL_THICKNESS / 2;
+    $geoinfo_hash['bbx'] = array($x-$dx, $x+$dx, $y-$dy, $y+$dy);
+    return $geoinfo_hash;
+  }
 }
 
 function compute_bbx_bcw ($part_geom)

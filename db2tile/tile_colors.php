@@ -64,6 +64,80 @@ function HSVtoRGB(array $hsv)
 	return array($R, $G, $B);
 }
 
+//$numseg == 4 -> rombus
+//           6 -> hexagon
+// r(th) = lenx * leny / sqrt(pow (leny*cos(th), 2) + pow(lenx*sin(th), 2));
+// output : array (x1, y1, x2, y2, ..., xnumseg, ynumseg);
+function ellipse($centerx, $centery, $lenx, $leny, $numseg)
+{
+  $resultpolyline = array();
+
+  if($numseg < 4) $numseg = 4;
+  
+  for($i=0 ; $i < $numseg ; $i ++)
+  {
+    $theta = 2*M_PI/$numseg * $i;
+    $ucoordx = cos($theta);
+    $ucoordy = sin($theta);
+    $xf = $lenx * $ucoordx;
+    $yf = $leny * $ucoordy;
+    $r = $lenx * $leny / sqrt(pow($xf, 2) + pow($yf, 2));
+
+    array_push($resultpolyline, $centerx + $r * $ucoordx); 
+    array_push($resultpolyline, $centery + $r * $ucoordy); 
+  }
+
+  return $resultpolyline;
+}
+
+// output array(x1,y1,x2,y2,x3,y3,x4,y4);
+function offsetrectangle($x1, $y1, $thick1, $x2, $y2, $thick2)
+{
+  $r1 = $thick1 / 2;
+  $r2 = $thick2 / 2;
+  if($x1==$x2 && $y1==$y2)
+  {
+    return array();
+  }
+  else if($x1==$x2 && $y1!=$y2)
+  {
+    $miny = min($y1, $y2);
+    $maxy = max($y1, $y2);
+    return array($x1-$r1, $maxy, $x2-$r2, $miny, $x2+$r2, $miny, $x1+$r1, $maxy);
+  }
+  else if($x1!=$x2 && $y1==$y2)
+  {
+    $minx = min($x1, $x2);
+    $maxx = max($x1, $x2);
+    return array($minx, $y1+$r1, $minx, $y1-$r1, $maxx, $y2-$r2, $maxx, $y2+$r1);
+  }
+  else
+  {
+    $orgslope = ($y1-$y2) / ($x1-$x2);
+    $orthoslope = -1 / $orgslope;
+    $dx1 = $r1 / sqrt(1 + $orthoslope * $orthoslope);
+    $dy1 = $r1 * $orthoslope / sqrt(1 + $orthoslope * $orthoslope);
+    $dx2 = $r2 / sqrt(1 + $orthoslope * $orthoslope);
+    $dy2 = $r2 * $orthoslope / sqrt(1 + $orthoslope * $orthoslope);
+    if($x2 < $x1 && $y2 < $y1)
+    {
+      return array($x1-$dx1, $y1+$dy1, $x2-$dx2, $y2+$dy2, $x2+$dx2, $y2-$dy2, $x1+$dx1, $y1-$dy1);
+    }
+    else if($x2 < $x1 && $y1 < $y2)
+    {
+      return array($x1+$dx1, $y1+$dy1, $x2-$dx2, $y2+$dy2, $x2+$dx2, $y2-$dy2, $x1-$dx1, $y1-$dy1);
+    }
+    else if($x1 < $x2 && $y2 < $y1)
+    {
+      return array($x2+$dx2, $y2+$dy2, $x1+$dx1, $y1+$dy1, $x1-$dx1, $y1-$dy1, $x2-$dx2, $y2-$dy2);
+    }
+    else if($x1 < $x2 && $y1 < $y2)
+    {
+      return array($x2-$dx2, $y2+$dy2, $x1-$dx1, $y1+$dy1, $x1+$dx1, $y1-$dy1, $x2+$dx2, $y2-$dy2);
+    }
+  }
+}
+
 // TRUE / FALSE
 function imagelinethick2($image, $x1, $y1, $x2, $y2, $color, $thick1 = 1, $thick2 = 1)
 {
@@ -208,5 +282,4 @@ function echocolor($rgbs)
 {
   echo "R: ".$rgbs["r"].", G: ".$rgbs["g"].", B: ".$rgbs["b"]."</br>";
 }
-
 ?>

@@ -48,7 +48,8 @@ class GoogleMapUtility {
 	  return new Boundary($lng, $bottomLat, $lngWidth, $latHeight);
     }
 
-    public static function toMercatorCoords($lat, $lng) {
+    public static function toMercatorCoords($lat, $lng) 
+    {
 	  if ($lng > 180) {
 		$lng -= 360;
 	  }

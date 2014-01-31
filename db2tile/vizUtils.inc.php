@@ -90,7 +90,7 @@ function generatePngFileFromDB($wss_db, $shp_name, $species_id, $Xname, $Yname, 
       exit;
     }
 
-    create_pngfile($geotype, polygonArrayGeo, $cw_bbx_array, $Xname, $Yname, $zoom, $xmin, $xmax, $ymin, $ymax, $file);
+    create_pngfile($geotype, $polygonArrayGeo, $cw_bbx_array, $Xname, $Yname, $zoom, $xmin, $xmax, $ymin, $ymax, $file);
 
     header('content-type:image/png;');
     echo file_get_contents($file);
@@ -122,10 +122,107 @@ function miletopixel($radius_in_mile, $latitude, $zoom)
   return $result;
 }
 
+function colorPartGeometry($geotype, $part, $orig, $zoom, $cwFlag, $img, $backgroundColor, $interiorColor)
+{
+  imagecolortransparent($img, $backgroundColor);
+
+  // Draw tile borders
+  //drawTileBorders($im, $swlat, $nelat, $swlng, $nelng, (int)$zoom, $interiorColor);
+
+  // test drawing
+  //imagefilledpolygon($img, array(100, 100, 200, 100, 200, 200, 100, 200), 4, $interiorColor);
+  //imagefilledpolygon($img, array(125, 125, 175, 125, 175, 175, 125, 175), 4, $backgroundColor);
+
+    $radius_in_mile = Shape2Wkt::$GEOMODEL_THICKNESS; // total thickness of line = 2*radius_in_mile
+    $pixel_array = array();
+    $latitude_pixel_array = array();
+    $numpt = count($part) / 2;
+    for ($p = 0 ; $p < $numpt ; $p++) 
+    {
+      $c = $p * 2; 
+      $x = $part[$c];
+      $y = $part[$c+1];
+      $pxl = GoogleMapUtility::toZoomedPixelCoords($y, $x, $zoom);
+      $pixel_array[] = $pxl->x - $orig->x;
+      $pixel_array[] = $pxl->y - $orig->y;
+
+      $radpix = miletopixel($radius_in_mile, $y, $zoom);
+      array_push($latitude_pixel_array, $radpix);
+    }
+
+echo "PART Coords: </br>";
+print_r($part);
+echo "</br>";
+echo "PART Pixels: </br>";
+print_r($pixel_array);
+echo "</br>";
+    
+   if($geotype == Shape2Wkt::$GEOTYPE_MULTIPOLYGON)	
+    {
+      //echo "create_pngfile: geotype is: polygon</br>";
+      if($cwFlag == TRUE)
+        imagefilledpolygon($img, $pixel_array, $numpt, $interiorColor);
+      else
+        imagefilledpolygon($img, $pixel_array, $numpt, $backgroundColor);
+    }
+    else if($geotype == Shape2Wkt::$GEOTYPE_MULTILINESTRING)	
+    {
+      //echo "create_pngfile: geotype is: linestring</br>";
+      $numpixels = count($pixel_array) / 2;
+
+      if(2 <= $numpixels)
+      {
+        $x1 = $pixel_array[0];
+        $y1 = $pixel_array[1];
+        $radpix1 = $latitude_pixel_array[0];
+        for($p = 1 ; $p < $numpixels; $p++)
+        {
+          $idx = 2 * $p;
+          $x2 = $pixel_array[$idx];
+          $y2 = $pixel_array[$idx + 1];
+          $radpix2 = $latitude_pixel_array[$p];
+          imagelinethick2($img, $x1, $y1, $x2, $y2, $interiorColor, 2 * $radpix1, 2 * $radpix2);
+
+  	  $lineColor = imagecolorallocate($img, 0, 0, 255); // red
+          imagelinethick($img, $x1, $y1, $x2, $y2, $lineColor, 1);
+          $x1 = $x2;
+          $y1 = $y2;
+          $radpix1 = $radpix2;
+        }
+      }
+    }
+    else if($geotype == Shape2Wkt::$GEOTYPE_MULTIPOINT)	
+    {
+      //echo "create_pngfile: geotype is: point</br>";
+      // Set the point thickness to 10
+      $numpixels = count($pixel_array) / 2;
+      for($p = 0 ; $p < $numpixels ; $p++)
+      {
+        $idx = 2 * $p;
+        $x = $pixel_array[$idx];
+        $y = $pixel_array[$idx + 1];
+	$radpix = $latitude_pixel_array[$p];
+        imagefilledellipse($img, $x, $y, $radpix, $radpix, $interiorColor);
+      }
+    }
+    else 
+    {
+      echo "geo type is not specified: ".$geotype."</br>";
+      exit(1);
+    }
+    return $img;
+}
+
+//------------------------------------------------------------------------------
 // given shp object $polygonArrayGeo w/ $cw_bbx_array, we iterate it's parts and draw polygon on given tile.
 function create_pngfile($geotype, $polygonArrayGeo, $cw_bbx_array, $tileX, $tileY, $zoom, 
                         $gxmin, $gxmax, $gymin, $gymax, $file) 
 {
+  //create a new image
+  $img = imagecreate(GoogleMapUtility::TILE_SIZE,GoogleMapUtility::TILE_SIZE);
+  $backgroundColor = imagecolorallocate($img, 0, 0, 0);
+  $interiorColor = imagecolorallocate($img, 255, 0, 0); // red
+
   //get th lat/lng bounds of this tile from the utility function.
   // return abounds object with width, height, x, y.
   $tileRect = GoogleMapUtility::getTileRect((int)$tileX, (int)$tileY, (int)$zoom);
@@ -167,46 +264,6 @@ function create_pngfile($geotype, $polygonArrayGeo, $cw_bbx_array, $tileX, $tile
   //else echo "Geo part, CW array are not same in length</br>";
 
   //echo "Num_Part: ".$num_part."</br>";
-
-
-  //create a new image
-  $img = imagecreate(GoogleMapUtility::TILE_SIZE,GoogleMapUtility::TILE_SIZE);
-  
-  $background = imagecolorallocate($img, 0, 0, 0);
-  imagecolortransparent($img, $background);
-
-  $interiorColor = imagecolorallocate($img, 255, 0, 0); // red
-
-  // Draw tile borders
-  //drawTileBorders($im, $swlat, $nelat, $swlng, $nelng, (int)$zoom, $interiorColor);
-
-  // test drawing
-  //imagefilledpolygon($img, array(100, 100, 200, 100, 200, 200, 100, 200), 4, $interiorColor);
-  //imagefilledpolygon($img, array(125, 125, 175, 125, 175, 175, 125, 175), 4, $background);
-
-  //echo "x($swlng,$nelng), y($swlat, $nelat)</br>";
-  //$height = GoogleMapUtility::TILE_SIZE;
-  //$pSW = GoogleMapUtility::toZoomedPixelCoords($swlat, $swlng, $zoom);
-  //$pSE = GoogleMapUtility::toZoomedPixelCoords($swlat, $nelng, $zoom);
-  //$pNE = GoogleMapUtility::toZoomedPixelCoords($nelat, $nelng, $zoom);
-  //$pNW = GoogleMapUtility::toZoomedPixelCoords($nelat, $swlng, $zoom);
-  //$parray = array(); 
-  //$parray[] = $pSW->x;// - $pNW->x;
-  //$parray[] = $pSW->y;// - $pNW->y;
-  //$parray[] = $pNW->x;// - $pNW->x;
-  //$parray[] = $pNW->y;// - $pNW->y;
-  //$parray[] = $pNE->x;// - $pNW->x;
-  //$parray[] = $pNE->y;// - $pNW->y;
-  //$parray[] = $pSE->x;// - $pNW->x;
-  //$parray[] = $pSE->y;// - $pNW->y;
-  //$parray[] = $pSW->x;// - $pNW->x;
-  //$parray[] = $pSW->y;// - $pNW->y;
-
-  //print_r($parray);
-  //echo "</br>";
-  //imagepolygon($img, $parray, 2, $interiorColor);
-
-
   $major_cw = $cw_bbx_array[0]['CW'];
   for($npart = 0 ; $npart < $num_part ; $npart++)
   {
@@ -223,97 +280,33 @@ function create_pngfile($geotype, $polygonArrayGeo, $cw_bbx_array, $tileX, $tile
     //print_r($bbx);
     //echo "<<<-bbx</br>";
 
-    //draw_gd_polygon($part, $zoom, $img, $cwFlag, $interiorColor, $background, $major_cw, 0);
-
-    //draw_tile_clipped_polygons($im, $part, $cwFlag, $bbx, $swlng, $nelng, $swlat, $nelat, $zoom, $interiorColor, $background); 
-    //
     $orig = GoogleMapUtility::toZoomedPixelCoords($swlat, $swlng, $zoom);
     //echo "Origin: $orig->x, $orig->y </br>";
-
-    $pixel_array = array();
-    $latitude_array = array();
-    $numpt = count($part) / 2;
-    for ($p = 0 ; $p < $numpt ; $p++) 
+ 
+    if($geotype == Shape2Wkt::$GEOTYPE_MULTIPOLYGON)
     {
-      $c = $p * 2; 
-      $x = $part[$c];
-      $y = $part[$c+1];
-      $latitude_array[] = $y;
-      $pxl = GoogleMapUtility::toZoomedPixelCoords($y, $x, $zoom);
-      $pixel_array[] = $pxl->x - $orig->x;
-      $pixel_array[] = $pxl->y - $orig->y;
+      $img = colorPartGeometry($geotype, $part, $orig, $zoom, $cwFlag, $img, $backgroundColor, $interiorColor);
     }
-    
-    //echo "PHP GD image gen routine for geotype ".$geotype."</br>";
-    //echo "INPUT GEOM: ";
-    //print_r($pixel_array);
-    //echo "</br>";
-    
-    if($geotype == Shape2Wkt::$GEOTYPE_MULTIPOLYGON)	
+    else if($geotype == Shape2Wkt::$GEOTYPE_MULTILINESTRING)
     {
-      echo "create_pngfile: geotype is: polygon</br>";
-      if($cwFlag == TRUE)
-        imagefilledpolygon($img, $pixel_array, $numpt, $interiorColor);
-      else
-        imagefilledpolygon($img, $pixel_array, $numpt, $background);
-    }
-    else if($geotype == Shape2Wkt::$GEOTYPE_MULTILINESTRING)	
-    {
-      echo "create_pngfile: geotype is: linestring</br>";
-      $radius_in_mile = 0.25; // total thickness of line = 2*radius_in_mile
-      // Set the line thickness to 10
-      $numpixels = count($pixel_array) / 2;
-
-      if(2 <= $numpixels)
-      {
-        $x1 = $pixel_array[0];
-        $y1 = $pixel_array[1];
-	$latitude1 = $latitude_array[0];
-	$radpix1 = miletopixel($radius_in_mile, $latitude1, $zoom);
-        for($p = 1 ; $p < $numpixels; $p++)
-        {
-          $idx = 2 * $p;
-          $x2 = $pixel_array[$idx];
-          $y2 = $pixel_array[$idx + 1];
-	  $latitude2 = $latitude_array[$p];
-	  $radpix2 = miletopixel($radius_in_mile, $latitude2, $zoom);
-	  //echo "thick in pixel: thick1--".$radpix1.", thick2--".$radpix2."</br>";
-          imagelinethick2($img, $x1, $y1, $x2, $y2, $interiorColor, 2 * $radpix1, 2 * $radpix2);
-          $x1 = $x2;
-          $y1 = $y2;
-          $radpix1 = $radpix2;
-        }
+      for($compi = 0 ; $compi < count($part) ; $compi++)
+      { 
+        $component = $part[$compi]; 
+        $img = colorPartGeometry(Shape2Wkt::$GEOTYPE_MULTIPOLYGON, $component, $orig, $zoom, $cwFlag, $img, $backgroundColor, $interiorColor);
       }
     }
-    else if($geotype == Shape2Wkt::$GEOTYPE_MULTIPOINT)	
+    else if($geotype == Shape2Wkt::$GEOTYPE_MULTIPOINT)
     {
-      echo "create_pngfile: geotype is: point</br>";
-      // Set the point thickness to 10
-      $numpixels = count($pixel_array) / 2;
-      for($p = 0 ; $p < $numpixels ; $p++)
-      {
-        $idx = 2 * $p;
-        $x = $pixel_array[$idx];
-        $y = $pixel_array[$idx + 1];
-        $radius_in_mile = 0.25; // total thickness of line = 2*radius_in_mile
-	$radpix = miletopixel($radius_in_mile, $y, $zoom);
-        imagefilledellipse($img, $x, $y, $radpix, $radpix, $interiorColor);
-      }
+      $img = colorPartGeometry(Shape2Wkt::$GEOTYPE_MULTIPOLYGON, $part, $orig, $zoom, $cwFlag, $img, $backgroundColor, $interiorColor);
     }
-    else 
-    {
-      echo "geo type is not specified: ".$geotype."</br>";
-      exit(1);
-    }
-
-  }
+  }    
   
   if($img != null)
   {
     //output the new image to the file system and then send it to the browser
     $out_result = imagepng($img, $file, 9, PNG_ALL_FILTERS);
     
-    imagecolordeallocate($img, $background );
+    imagecolordeallocate($img, $backgroundColor );
     imagecolordeallocate($img, $interiorColor );
     
     imagedestroy($img);
@@ -353,7 +346,10 @@ function computeBoundingBoxFromParts($array_bbx)
   $gymin = min($arr_ymin);
   $gymax = max($arr_ymax);
 
-   return array($gxmin, $gxmax, $gymin, $gymax); 
+  $resultbbx =  array($gxmin, $gxmax, $gymin, $gymax); 
+  //echo "resultbbx: ";
+  //print_r($resultbbx);
+  return $resultbbx; 
 }
 
 function computeBoundingBoxPart($part)
@@ -376,6 +372,10 @@ function computeBoundingBoxPart($part)
   return array ($minx, $maxx, $miny, $maxy);
 }
 
+// multi-geometry or
+// $part_geom is a part in Shape2Wkt::$GEOTYPE_MULTILINESTRING geometry
+
+// returns list(minx, maxx, miny, maxy)
 function computeBoundingBox($arrayParts)
 {
   $num_parts = count ($arrayParts);
@@ -405,17 +405,22 @@ function computeBoundingBox($arrayParts)
 function computeTileImage($wss_db, $shp_name, $zoomLevels, $species_id, $imgLimitPerLevel, $pickorviz) {
   
   // static data from DB
-  list($source_gri, $xmin, $xmax, $ymin, $ymax, $polygonArrayGeo)
+  list($source_gri, $xmin, $xmax, $ymin, $ymax, $shapeArrayGeo)
 	= getPhpPolygonFromDB($wss_db, $species_id, TRUE); // returns multipolygon
 
   //echo "XY min/max = X(".$xmin."-".$xmax."), Y(".$ymin."-".$ymax.")<br/>";
 
-  $polygon_geo_info = array($xmin, $xmax, $ymin, $ymax, $polygonArrayGeo);
+  $array_bbx_bcw = array_map('compute_bbx_bcw', $shapeArrayGeo);
+  $shape_geo_info = array($xmin, $xmax, $ymin, $ymax, $shapeArrayGeo, $array_bbx_bcw); // need to fill cw_bbx_array
 
-  for($i=0 ; $i < sizeof ($zoomLevels) ; $i++) {
-	
+  for($i=0 ; $i < sizeof ($zoomLevels) ; $i++) 
+  {
     $zoom = $zoomLevels[$i];
-    computeTileImageZoom($shp_name, $species_id, $polygon_geo_info, $zoom, $imgLimitPerLevel, $pickorviz);
+    computeTileImageZoom($shp_name, $species_id, $shape_geo_info, $zoom, $imgLimitPerLevel, $pickorviz);
+
+    echo "Zoom level: ".$zoom." completed</br>";
+    flush();
+    ob_flush();
   }
 }
 
@@ -447,26 +452,222 @@ function computeZoom ($minx, $maxx, $miny, $maxx)
   return $zoom;
 }
 
+// If geotype==MULTILINESTRING || MULTIPOINT
+// part -> compoundPolygon = { rectangle } U { ellipse }
+// $shapeArrayGeo = {"part"=> array of points}
+function createCompoundMultiPolygon($geotype, $shapeArrayGeo)
+{
+  $num_segment = 32;
+  $thick = Shape2Wkt::$GEOMODEL_THICKNESS;
+  $thickoffset = $thick/2;
+  $polygonArrayGeo = array();
+  $cw_bbx_array = array();
+
+  // check if numpart and num-cwflag-array are same:
+  $num_part = count($shapeArrayGeo); 
+  echo "Num_Part: ".$num_part."</br>";
+
+  for($npart = 0 ; $npart < $num_part ; $npart++)
+  {
+    $part = $shapeArrayGeo[$npart];
+    $numpt = count($part) / 2;
+
+    if($geotype == Shape2Wkt::$GEOTYPE_MULTILINESTRING)	
+    {
+      $polygonArrayGeo[$npart] = array();
+      $polygonPartArrayBbx = array();
+      if(2 < $numpt)
+      {
+        $x0 = $part[0];
+        $y0 = $part[1];
+        for ($p = 1 ; $p < $numpt ; $p++) 
+        {
+          $c = $p * 2;
+          $x1 = $part[$c];
+          $y1 = $part[$c+1];
+//echo "(x0,y0) = ".$x0.", ".$y0."</br>(x1,y1) = ".$x1.", ".$y1."</br>";
+          $offsetrectangle = offsetrectangle($x0, $y0, $thickoffset, $x1, $y1, $thickoffset);
+//echo "OFFSET rectangle: ";
+//print_r($offsetrectangle);
+//echo "</br>";
+          array_push($polygonArrayGeo[$npart], $offsetrectangle);
+
+          $bbx = computeBoundingBoxPart($offsetrectangle);
+          array_push($polygonPartArrayBbx, $bbx);
+
+          // circle in interior knots
+          if($p < $numpt - 1)
+          {
+            $ellipse = ellipse($x1, $y1, $thickoffset, $thickoffset, $num_segment);
+//echo "Ellipse:";
+//print_r($ellipse);
+//echo "</br>";
+            array_push($polygonArrayGeo[$npart], $ellipse);
+            $bbx = computeBoundingBoxPart($ellipse);
+//echo "BBX:";
+//print_r($bbx);
+//echo "</br>";
+
+            array_push($polygonPartArrayBbx, $bbx);
+          }
+          $x0 = $x1;
+          $y0 = $y1;
+        }
+      }
+      else if (2==$numpt)
+      {
+        $x0 = $part[0];
+        $y0 = $part[1];
+        $x1 = $part[2];
+        $y1 = $part[3];
+        $offsetrectangle = offsetrectangle($x0, $y0, $thickoffset, $x1, $y1, $thickoffset);
+        array_push($polygonArrayGeo[$npart], $offsetrectangle);
+        $bbx = computeBoundingBoxPart($offsetrectangle);
+        array_push($polygonPartArrayBbx, $bbx);
+      }
+      else if (1==$numpt)
+      {
+        $x = $part[0];
+        $y = $part[1];
+        $ellipse = ellipse($x, $y, $thickoffset, $thickoffset, $num_segment);
+        array_push($polygonArrayGeo[$npart], $ellipse);
+        $bbx = computeBoundingBoxPart($ellipse);
+        array_push($polygonPartArrayBbx, $bbx);
+      }
+    }
+    else if($geotype == Shape2Wkt::$GEOTYPE_MULTIPOINT)
+    {
+      $x = $part[0];
+      $y = $part[1];
+      $ellipse = ellipse($x, $y, $thick1/2, $thick2/2, $num_segment);
+      array_push($polygonArrayGeo[$npart], $ellipse);
+      $bbx = computeBoundingBoxPart($ellipse);
+      array_push($polygonPartArrayBbx, $bbx);
+    }
+    $cw_bbx = array();
+    $cw_bbx['CW'] = TRUE;
+    $cw_bbx['bbx'] = computeBoundingBoxFromParts($polygonPartArrayBbx);
+    array_push($cw_bbx_array, $cw_bbx);
+  }
+
+  return array($polygonArrayGeo, $cw_bbx_array);
+}
+
+function printshapegeoinfo($shpelt_geo_info)
+{
+  echo "---shapegeometry-----------------------------------------------</br>";
+  echo "BBX: ".$shpelt_geo_info[0].", ".$shpelt_geo_info[1].", ".$shpelt_geo_info[2].", ".$shpelt_geo_info[3]."</br> ";
+  $parts = $shpelt_geo_info[4];
+  for($i=0;$i<count($parts);$i++)
+  {
+    $part = $parts[$i];
+    echo "Part[".$i."]=";
+    print_r($part);
+    echo "</br>";
+  }
+  echo "--------------------------------------------------</br>";
+}
+
+function printpolygongeoinfo($geotype, $polyelt_geo_info)
+{
+  echo "---polygongeometry-----------------------------------------------</br>Geotype:".$geotype."</br>";
+  //print_r($polyelt_geo_info);
+  //echo "BBX: ".$polyelt_geo_info[0].", ".$polyelt_geo_info[1].", ".$polyelt_geo_info[2].", ".$polyelt_geo_info[3]."</br> ";
+  $parts = $polyelt_geo_info[4];
+  for($i=0;$i<count($parts);$i++)
+  {
+    $part = $parts[$i];
+    if($geotype == Shape2Wkt::$GEOTYPE_MULTIPOLYGON)
+    {
+      echo "Part[".$i."]=";
+      print_r($part);
+      echo "</br>";
+    }
+    else if ($geotype == Shape2Wkt::$GEOTYPE_MULTILINESTRING)
+    {
+      for($j=0;$j<count($part);$j++)
+      {
+        $comp = $part[$j];
+        echo "Part[".$i."][".$j."]=";
+        print_r($comp);
+        echo "</br>";
+      }
+    }
+    else if ($geotype == Shape2Wkt::$GEOTYPE_MULTIPOINT)
+    {
+      echo "Part[".$i."]=";
+      print_r($part);
+      echo "</br>";
+    }
+  }
+  echo "--------------------------------------------------</br>";
+}
+function printcwbbxarrayinfo($cw_bbx_array)
+{
+  for($i=0;$i<count($cw_bbx_array);$i++)
+  {
+    $cwbbx = $cw_bbx_array[$i];
+    echo "Part[".$i."]=></br>";
+    echo "Is CW:".$cwbbx["CW"]."</br>";
+    echo "BBX:";
+    print_r($cwbbx["bbx"]);
+    echo "</br>";
+  }
+}
+
 function computeTileImageZoom($shp_name, $shpelt_key, $shpelt_geo_info, $zoom, $imgLimitPerLevel, $geotype, $pickorviz)
 {
   // those min-max for x,y are global extent (set of parts)
-  list($xmin, $xmax, $ymin, $ymax, $polygonArrayGeo, $cw_bbx_array) = $shpelt_geo_info;
+  list($xmin, $xmax, $ymin, $ymax, $shapeArrayGeo, $cw_bbx_array) = $shpelt_geo_info;
   
+  echo "computeTileImageZoom .......global(each shpelt=set of parts) bbx info...............</br>";
+  echo "zoom: $zoom </br>";
+  //printshapegeoinfo($shpelt_geo_info);
+  //printcwbbxarrayinfo($cw_bbx_array); // array of hashtbl
+  /*
+  echo "</br>ShapeArrayGeo: ".count($shapeArrayGeo).":</br>";
+  print_r($shapeArrayGeo);
+  echo "</br>";
+  */
 
-  //echo "computeTileImageZoom .......global(each shpelt=set of parts) bbx info...............</br>";
-  //echo "zoom: $zoom </br>";
-  //print_r($shpelt_geo_info);
-  //print_r($cw_bbx_array); // array of hashtbl
-  //echo "</br>";
-
-
-  if($polygonArrayGeo==FALSE) { 
-    //echo "computeTileImageZoom: - polygonArrayGeo is FALSE</b>"; 
+  if($shapeArrayGeo==FALSE) { 
+    echo "computeTileImageZoom: - shapeArrayGeo is FALSE</b>"; 
     return FALSE;
   }
 
+  // MultiLineString, MultiPoint need geometric modeling to create MultiPolygon with its geotype preserved.
+  // if geotype==MultiLineString, output of modelingis array of polygons.
+  $polygonArrayGeo = array();
+  if($geotype == Shape2Wkt::$GEOTYPE_MULTILINESTRING || $geotype == Shape2Wkt::$GEOTYPE_MULTIPOINT) 
+  {
+    list($polygonArrayGeo, $cw_bbx_array) = createCompoundMultiPolygon($geotype, $shapeArrayGeo);
+  }
+  else if($geotype == Shape2Wkt::$GEOTYPE_MULTIPOLYGON)
+  {
+    $polygonArrayGeo = $shapeArrayGeo;
+  }
+  else
+  {
+    echo "Geotype is unknown -- no modeling to polygon</br>";
+  }
+  $array_bbx = array_map('geoinfo_ht_bbx', $cw_bbx_array);
+  print_r($cw_bbx_array);
+  list($minx, $maxx, $miny, $maxy) = computeBoundingBoxFromParts($array_bbx);
+
+  echo "</br>MINMAX: $minx , $maxx, $miny , $maxy </br>"; 
+
+  $polyelt_geo_info = array();
+  array_push($polyelt_geo_info, $minx);
+  array_push($polyelt_geo_info, $maxx);
+  array_push($polyelt_geo_info, $miny);
+  array_push($polyelt_geo_info, $maxy);
+  array_push($polyelt_geo_info, $polygonArrayGeo);
+
+  //printpolygongeoinfo($geotype, $polyelt_geo_info);
+  //printcwbbxarrayinfo($cw_bbx_array); // array of hashtbl
   // global extent null for given shpelt -> compute extent : union of bbx of each part.
-  if($xmin==FALSE||$ymin==FALSE||$xmax==FALSE||$ymax==FALSE) {
+  if($xmin==FALSE||$ymin==FALSE||$xmax==FALSE||$ymax==FALSE)
+  {
     $array_bbx = array_map (geoinfo_ht_bbx, $cw_bbx_array); // bbx is an array (xmin, xmax, ymin, ymax)
     list($xmin, $xmax, $ymin, $ymax) = computeBoundingBoxFromParts($array_bbx);
     //echo "whole Min/Max for x,y (calc)= ".$xmin."/".$xmax.",  ".$ymin."/".$ymax."</br>";
@@ -476,7 +677,9 @@ function computeTileImageZoom($shp_name, $shpelt_key, $shpelt_geo_info, $zoom, $
   echo "</br>PolygonArrayGeo: ".count($polygonArrayGeo).":</br>";
   print_r($polygonArrayGeo);
   echo "</br>";
+  */
 
+  /*
   echo "</br>CWbbx: ".count($cw_bbx_array).":</br>";
   print_r($cw_bbx_array);
   echo "</br>";
@@ -699,13 +902,13 @@ function computeNcreate_tile_imagefile($shp_name, $shpelt_key, $xmin, $xmax, $ym
 
   echo "_*_*___*________*_________________*_________________________________*________________________<br/>";
   echo $shpelt_key." [z:".$zoom."]X range = ".$nwTile->x." ~ ".$seTile->x."(".$numTileX.")<br/>";
-  echo $shpelt_key." [z:".$zoom."]Y range = ".$nwTile->y." ~ ".$seTile->y."(".$numTileY.")<br/>";
-  echo "Total # of tiles = ".$totalTiles." w/ Limit ".$imgLimitPerLevel.". -> ";
-  echo "bbx for big shpobj: xmin/xmax, ymin/ymax: ".$xmin."/".$xmax.",   ".$ymin."/".$ymax."</br>";
-  echo "PICK or Viz: ".$pickorviz."</br>";
-  echo "GEO Type: ".$geotype."</br>";
-  flush();
-  ob_flush();
+  //echo $shpelt_key." [z:".$zoom."]Y range = ".$nwTile->y." ~ ".$seTile->y."(".$numTileY.")<br/>";
+  //echo "Total # of tiles = ".$totalTiles." w/ Limit ".$imgLimitPerLevel.". -> ";
+  //echo "bbx for big shpobj: xmin/xmax, ymin/ymax: ".$xmin."/".$xmax.",   ".$ymin."/".$ymax."</br>";
+  //echo "PICK or Viz: ".$pickorviz."</br>";
+  //echo "GEO Type: ".$geotype."</br>";
+  //flush();
+  //ob_flush();
 
   $tile_home = dirname(__FILE__)."/../../tiles";
   $img_sn = 0;
@@ -722,7 +925,7 @@ function computeNcreate_tile_imagefile($shp_name, $shpelt_key, $xmin, $xmax, $ym
         // No overwrite tiles.
         if(! file_exists ($filename)) {
 
-          //echo "Computing started...w/tilex(x,y) = ".$tx.", ".$ty."</br>";
+          echo "Computing started...w/tilex(x,y) = ".$tx.", ".$ty."</br>";
           create_pngfile($geotype, $polygonArrayGeo, $cw_bbx_array, $tx, $ty, $zoom, $xmin, $xmax, $ymin, $ymax, $filename);
           //echo "...Ended<br/>";
         }
