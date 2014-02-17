@@ -8,7 +8,6 @@ class Shape2Wkt {
   public static $GEOTYPE_MULTILINESTRING = "MULTILINESTRING";
   public static $GEOTYPE_MULTIPOINT = "MULTIPOINT";
   public static $GEOMODEL_THICKNESS = 805; // an half mile in meter--804.672
->>>>>>> 7e25e906b4c6ad0af5f29e33ee49ccd56106bc96
 
   public $geotype = "Multipolygon";
 
