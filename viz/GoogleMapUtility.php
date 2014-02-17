@@ -33,7 +33,8 @@ class GoogleMapUtility {
 					   $pixelCoords->y % GoogleMapUtility::TILE_SIZE);
     }
 
-    public static function getTileRect($x,$y,$zoom) {
+    public static function getTileRect($x,$y,$zoom) 
+    {
 	  $tilesAtThisZoom = 1 << $zoom;
 	  $lngWidth = 360.0 / $tilesAtThisZoom;
 	  $lng = -180 + ($x * $lngWidth);
@@ -52,7 +53,8 @@ class GoogleMapUtility {
 	  return new Boundary($lng, $bottomLat, $lngWidth, $latHeight);
     }
 
-    public static function toMercatorCoords($lat, $lng) {
+    public static function toMercatorCoords($lat, $lng) 
+    {
 	  if ($lng > 180) {
 		$lng -= 360;
 	  }
@@ -62,7 +64,8 @@ class GoogleMapUtility {
 	  return new Point($lng, $lat);
     }
 
-    public static function toNormalisedMercatorCoords($point) {
+    public static function toNormalisedMercatorCoords($point) 
+    {
 	  $point->x += 0.5;
 	  $point->y = abs($point->y-0.5);
 	  return $point;

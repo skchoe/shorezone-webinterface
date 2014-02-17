@@ -156,7 +156,6 @@ function colorPartGeometry($geotype, $part, $orig, $zoom, $cwFlag, $img, $backgr
 //echo "PART Pixels: </br>";
 //print_r($pixel_array);
 //echo "</br>";
-    
    if($geotype == Shape2Wkt::$GEOTYPE_MULTIPOLYGON)	
     {
       //echo "create_pngfile: geotype is: polygon</br>";

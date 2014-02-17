@@ -116,7 +116,6 @@ if($rep == "table") {
     $htmlTable.="<TR>";
     for($i = 0;$i < $num_valids;$i++) 
     {
-
       // viz data into table
       $metaarray = $arr_of_metadata[$i];
       
