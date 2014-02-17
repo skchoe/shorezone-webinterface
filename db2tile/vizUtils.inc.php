@@ -36,7 +36,7 @@ function prepare_png_folder($tile_home_folder, $shp_name, $folder_ids, $folder_i
 {
   if($pickorviz=="pick")
   {
-    echo "tilehome: $tile_home_folder, shpname: $shp_name, folder_ids: $folder_ids, folder_id: $folder_id, folder_zm: $folder_zm, folder_x: .$folder_x </br>";
+    //echo "tilehome: $tile_home_folder, shpname: $shp_name, folder_ids: $folder_ids, folder_id: $folder_id, folder_zm: $folder_zm, folder_x: .$folder_x </br>";
     $upto_shp_name = $tile_home_folder.'/'.$shp_name.'_pick';
     create_folder_chmod($upto_shp_name);
 

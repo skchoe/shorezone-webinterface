@@ -99,23 +99,23 @@ if($rep == "table") {
 
 
 <body>
-
-
 <?php
   $arr_of_metadata = $arr_of_metadata_array[0];
   $num_valids = count ($arr_of_metadata);
   $totalLayers = $arr_of_metadata_array[2];
   
   $styleTable = "style=\"border:2px solid black;\"";
+  $styleSubTable = "style=\"border:1px solid black;\"";
   $styleCell = "style=\"border:1px solid green;\"";
-  $htmlTable = "<TABLE ".$styleTable."><TR><TD colspan='2'><FONT SIZE='4' COLOR='Teal'>\"".$shpname."\" SHAPE LAYERS: ".$num_valids." results from ".$totalLayers." layers.</FONT></TD></TR>";
-
-  $keyarr = array_keys($meta_names);
+  $htmlTable = "<TABLE ".$styleTable.">";
+  $htmlTable .= "<TR><TD colspan='".$num_valids."'><FONT SIZE='4' COLOR='Teal'>\"".$shpname."\" SHAPE LAYERS: ".$num_valids." results from ".$totalLayers." layers.</FONT></TD></TR>";
 
   if($arr_of_metadata != NULL) 
   {
     //print_r($arr_of_metadata);
-    for($i = 0;$i < $num_valids;$i++) {
+    $htmlTable.="<TR>";
+    for($i = 0;$i < $num_valids;$i++) 
+    {
 
       // viz data into table
       $metaarray = $arr_of_metadata[$i];
@@ -124,6 +124,8 @@ if($rep == "table") {
       $idxUnitId = $meta_names[$id];
       if($metaarray[$idxUnitId] != "")
       {
+        $htmlTable.="<TD>";
+        $htmlTable.="<TABLE ".$styleSubTable.">";
 	/*
         echo "..............".$idxUnitId.":, metaarray: </br>";
 	print_r($metaarray);
@@ -133,19 +135,22 @@ if($rep == "table") {
 	$keyarr2 = array_keys($metaarray);
         foreach($meta_names as $desc => $idx)
         {
-	  $htmlTable.="<TR>";
+          $htmlTable.="<TR>";
 	  if(in_array($desc, $keyarr1) && in_array($idx, $keyarr2)) 
 	  {
           	$htmlTable.="<TD ".$styleCell.">".$desc."</TD><TD ".$styleCell.">".$metaarray[$idx]."</TD>";
 	  }
 	  else
 	  {
-		$htmlTable.="<TD>".$desc."</TD><TD></TD>";
+		$htmlTable.="<TD ".$styleCell.">".$desc."</TD><TD></TD>";
 	  }
-	  $htmlTable.="</TR>";
+          $htmlTable.="</TR>";
         }
+        $htmlTable.="</TABLE>";
+        $htmlTable.="</TD>";
       }
     }
+    $htmlTable.="</TR>";
   }
   $htmlTable .= "</TABLE></br>";
   echo $htmlTable;

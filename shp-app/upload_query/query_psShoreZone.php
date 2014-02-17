@@ -221,7 +221,7 @@
 		var tbl_name_dbf = 'szpoly_dbf';
 		var returnDivId = "resultSpanPoly";
 		var id = "UNIT_ID";
-		var meta_names = {"SHP_ID":"0","UNIT_ID":"3","GeoMapper":"9","Date":"11","BioMapper":"13","ShoreName":"35","BioUnit":"77","BioDesc":"78","A1":"87","B1":"91"}; 
+		var meta_names = {"SHP_ID":"0","UNIT_ID":"3","DETH_Class":"7","GeoMapper":"9","Date":"11","BioMapper":"13","ShoreName":"35","BioUnit":"77","BioDesc":"78","A1":"87","B1":"91"}; 
 		
 		clearResult(returnDivId);
 		ajaxFunction(returnDivId, shp_name, tbl_name_dst, tbl_name_dbf, 
@@ -234,7 +234,7 @@
 		tbl_name_dbf = 'szline_dbf';
 		returnDivId = "resultSpanLine";
 		id = "UNIT_ID";
-		meta_names = {"SHP_ID":"0","UNIT_ID":"2","GeoMapper":"8","Date":"10","BioMapper":"12","ShoreName":"33","BioUnit":"76","BioDesc":"77","A1":"86","B1":"91"};
+		meta_names = {"SHP_ID":"0","UNIT_ID":"2","DETH_Class":"6","GeoMapper":"8","Date":"10","BioMapper":"12","ShoreName":"33","BioUnit":"76","BioDesc":"77","A1":"86","B1":"91"};
 
 		clearResult(returnDivId);
 		ajaxFunction(returnDivId, shp_name, tbl_name_dst, tbl_name_dbf, zoom_start, zoom_end, lng, lat, zoom, rep, pickorviz, id, meta_names);
@@ -245,7 +245,7 @@
 		tbl_name_dbf = 'szpt_dbf';
 		returnDivId = "resultSpanPt";
 		id = "UNIT_ID";
-		meta_names = {"SHP_ID":"0","UNIT_ID":"1","GeoMapper":"7","Date":"9","BioMapper":"11","ShoreName":"32","BioUnit":"58","BioDesc":"59","A1":"68","B1":"72"};
+		meta_names = {"SHP_ID":"0","UNIT_ID":"1","DETH_Class":"5","GeoMapper":"7","Date":"9","BioMapper":"11","ShoreName":"32","BioUnit":"58","BioDesc":"59","A1":"68","B1":"72"};
 		clearResult(returnDivId);
 		ajaxFunction(returnDivId, shp_name, tbl_name_dst, tbl_name_dbf, zoom_start, zoom_end, lng, lat, zoom, rep, pickorviz, id, meta_names);
 
