@@ -1,0 +1,29 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="upload.css" type="text/css">
+		<script language="JavaScript">
+	
+      /*
+      function autoFormSubmit() {
+				 document.getElementById("upload_form_shp_dbf").submit();
+			}
+      */
+      
+		</script>
+
+    <title> Submit geometry and Query </title>
+	</head>
+<body>
+  <h1>Load Map data, query by position</h1>
+
+<!-- UP shp form -->
+<form class='style1' name="upload_form_shp_dbf" id="upload_form_shp_dbf" enctype="multipart/form-data" method="POST" action="upload_proc.php">
+    <input type="hidden" name="MAX_FILE_SIZE" value="5000000000" />
+    Select Geometry File (SHP format): <input name="shpfile" id="shpfile" type="file" /> </br>
+    Select Metadata File (DBF format): <input name="dbffile" id="dbffile" type="file" /> </br>
+    Submit and Process geometry: <input type="submit" value="Upload and Process" /> </br>
+    <div id="txt" style="display: none"></div>
+</form>
+
+</body>
+</html>
