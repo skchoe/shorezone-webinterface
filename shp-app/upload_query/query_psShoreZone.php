@@ -81,7 +81,7 @@
 		<TR>
 			<TD rowspan="3">
 	  		<p><i>Query results:</i></p>
-	  		<div style="width: 400px" class="smalltekst" id="resultSpanPoly"> </div>
+	  		<div style="width: 3360px;" class="smalltekst" id="resultSpanPoly"> </div>
 	  		<div style="width: 3360px;" class="smalltekst" id="resultSpanLine"></div>
 	  		<div style="width: 3360px;" class="smalltekst" id="resultSpanPt"></div>
 	  		<div style="width: 3360px;" class="smalltekst" id="resultSpanLnend"></div>
