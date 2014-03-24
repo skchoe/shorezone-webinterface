@@ -86,15 +86,15 @@ catch (Exception $e)
 // SRC: $(HOME)/git-repositories/shorezone-webinterface/shp-app
 // DATA: $(HOME)/mapdata/DNR_ShoreZone_Working/szinv_wgs84
 $posShoreZoneShape = "../../mapdata/DNR_ShoreZone_Working/szinv_wgs84";
-$zoomLevelMin = 18;//13;//3;
-$zoomLevelMax = 18;//13;//19;
+$zoomLevelMin = 15;//13;//3;
+$zoomLevelMax = 15;//13;//19;
 
 //$szpoly geom_type=3
 //$filename = $posShoreZoneShape."/szpoly.shp";
 //$szline geom_type=3
-$filename = $posShoreZoneShape."/szline.shp";
+//$filename = $posShoreZoneShape."/szline.shp";
 //$szpt geom_type=1
-//$filename = $posShoreZoneShape."/szpt.shp";
+$filename = $posShoreZoneShape."/szpt.shp";
 //$szlnend geom_type=1
 //$filename = $posShoreZoneShape."/szlnend.shp";
 

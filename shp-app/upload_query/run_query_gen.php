@@ -48,7 +48,7 @@ if(-1 != $json_meta_names_nobr)
 			$meta_names[$key] = $value;
 	}
 }
-echo "</br>";
+//echo "</br>";
 
 //echo "1) run_query_.php -- shpname: $shpname, tblname: $tblname, $lat, $lng, $zoom, $rep </br>";
 

@@ -233,11 +233,13 @@ function geom_in_db_to_tile($db_connect_info, $table_name_shp, $table_name_dbf, 
     $prival = mysql_result($result_keys_shp, $count);
     $binomial = mysql_result($result_binomial_dbf, $count);
 
-    //echo "prival: $prival from idx:$count </br>";
+    echo "prival: $prival from idx:$count </br>";
     list($xmin, $xmax, $ymin, $ymax, $nprt, $npt, $pg) = get_sql_geometry($table_name_shp, $prikey_name, $prival);
 
     //echo "element order in shp: $count, numpart: $nprt, numpoint: $npt, prival: $prival, zoomlevel: $zoomLevel </br>";
     //echo "binomial: $binomial </br>";
+    echo "pg: -------------> </br>";
+    print_r($pg);
 
     //if($nprt < 2) continue; // line for generating tiles again for multipolygon
 

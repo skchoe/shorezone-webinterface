@@ -43,7 +43,7 @@
   <title>Query for Shape-layer</title>
 </HEAD>
 
-<BODY>
+<BODY onload = "load_szline_data()">
   <TABLE>
     <INPUT type='hidden' name='Zoom' id="setZoom" value=""/>
     <TR> 
@@ -103,6 +103,7 @@
 </BODY>
 
 
+<SCRIPT type="text/javascript" src="js/common.js"></SCRIPT>
 <SCRIPT type="text/javascript">
 
 	var topLat = 90.0;
@@ -128,78 +129,6 @@
 
 	var map;
 	var gMarkerArray = new Array();
-
-	function createURL(shp_name, table_name_dst, table_name_dbf, zoom_start, zoom_end, lng, lat, zoom, rep, pickorviz, id, meta_names)
-	{
-		var json_meta_names = JSON.stringify(meta_names);
-		var url = "run_query_gen.php";
-		url += "?ShapeName="+shp_name;
-		url += "&TableNameDst="+table_name_dst;
-		url += "&TableNameDbf="+table_name_dbf;
-		url += "&ZoomStart="+zoom_start;
-		url += "&ZoomEnd="+zoom_end;
-		url += "&lng="+lng;
-		url += "&lat="+lat;
-		url += "&zoom="+zoom;
-		url += "&rep="+rep;
-		url += "&pickorviz="+pickorviz;
-		url += "&id="+id;
-		url += "&meta_names="+json_meta_names;
-		//alert(url);
-
-		return url;	
-	}
-
-	function getXMLHttp()
-	{
-		var xmlhttp;
-		if (window.XMLHttpRequest)
- 		{
-			xmlhttp=new XMLHttpRequest();
- 		}
-		else if (window.ActiveXObject)
- 		{
-			// code for IE6, IE5
-			xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
- 		}
-		else
- 		{
-			alert("Your browser does not support XMLHTTP!");
-		}
-		return xmlhttp;
-	}
-
-	function ajaxFunction(returnDivId, shp_name, table_name_dst, table_name_dbf, zoom_start, zoom_end, lng, lat, zoom, rep, pickorviz, id, meta_names)
-	{
-		var xmlhttp = getXMLHttp();
-
-		var url = createURL(shp_name, table_name_dst, table_name_dbf, zoom_start, zoom_end, lng, lat, zoom, rep, pickorviz, id, meta_names)
-		xmlhttp.onreadystatechange = function() {
-			//document.getElementById(returnDivId).write("onreadystatechange");
-			if(xmlhttp.readyState==4) {
-				document.getElementById(returnDivId).innerHTML = xmlhttp.responseText;
-			}
-		}
-		xmlhttp.open("GET", url, true);
-		xmlhttp.send(null);
-	}
-
-	function clearResultAll()
-	{
-		var returnDivId = "resultSpanPoly";
-		clearResult(returnDivId);
-		returnDivId = "resultSpanLine";
-		clearResult(returnDivId);
-		returnDivId = "resultSpanPt";
-		clearResult(returnDivId);
-		returnDivId = "resultSpanLnend";
-		clearResult(returnDivId);
-	}
-
-	function clearResult(returnDivId) 
-	{
-		var div = document.getElementById(returnDivId).innerHTML = "";
-	}
 
 	function computeExistence(form) 
 	{
@@ -297,6 +226,12 @@
 		return true;
 	}
 
+	function drawPolyLine()
+	{
+		var polyline = new GPolyline([new GLatLng(48.994439, -122.760115), new GLatLng(48.989117, -122.773676)], "#00ff00", 2);
+		map.addOverlay(polyline);
+	}
+
 	function placeMarker(setLat, setLon) 
 	{
 		var message = "geotagged geo:lat=" + setLat + " geo:lon=" + setLon + " "; 
@@ -335,7 +270,10 @@
  		map.setCenter(point, initZoom);
 
 		//marker
-		drawNewMarker(setLat, setLon)
+		drawNewMarker(setLat, setLon);
+
+		//line
+		drawPolyLine();
 
 		GEvent.addListener(map, 'click', function(overlay, point) 
 		{
@@ -381,6 +319,16 @@
 		setLon = setLon.toFixed(6);
 		placeMarker(setLat, setLon);
 	}
+ 
+	function load_szline_data()
+	{
+                var url = "run_load_geometry.php";
+                url += "?ShapeName="+shp_name;
+                url += "&TableNameDst="+table_name_dst;
+                url += "&meta_names="+meta_names;
+
+	}
+
 </SCRIPT>
 
 
