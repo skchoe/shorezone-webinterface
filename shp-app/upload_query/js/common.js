@@ -70,6 +70,25 @@
 		var div = document.getElementById(returnDivId).innerHTML = "";
 	}
 
+	function ajaxShowNote(map, shp_tbl, returnDivId)
+	{
+		var gLatLngBounds = map.getBounds();
+		var sw = gLatLngBounds.getSouthWest();
+		var ne = gLatLngBounds.getNorthEast();
+		var url = "ajax_loadgeometry.php?TableNameDst=" + shp_tbl + "&sw="+ sw.toUrlValue() + "&ne=" + ne.toUrlValue();
+
+		var xmlhttp = getXMLHttp();
+
+		xmlhttp.onreadystatechange = function() {
+			if(xmlhttp.readyState==4) {
+				document.getElementById(returnDivId).innerHTML = xmlhttp.responseText;
+				//document.getElementById(returnDivId).innerHTML = "<b>test</b>";
+			}
+		}
+		xmlhttp.open("GET", url, true);
+		// Fire ajax call to get geometries from storage
+		xmlhttp.send(null);
+	}
 /*
 	// argItems code taken from 
 	// http://www.evolt.org/article/Javascript_to_Parse_URLs_in_the_Browser/17/14435/?format=print

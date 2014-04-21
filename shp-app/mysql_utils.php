@@ -78,8 +78,6 @@ function get_sql_result($db_conn, $tbl_shp, $prikey_name)
   $db_pass = $db_conn['passwd'];
   $database = $db_conn['db'];
 
-//echo "----DB login info:".$db_host.", ".$db_name.", ".$db_pass."</br>";
-//echo "DB login info:".$db_host.", ".$db_name.", ".$db_pass.", DB: ".$database."</br>";
   $db_conn = mysql_connect($db_host, $db_name, $db_pass);
   @mysql_select_db($database) or die ("Could not select db");
 
@@ -94,6 +92,34 @@ function get_sql_result($db_conn, $tbl_shp, $prikey_name)
   return $result_keys;
 }
 
+function get_sql_geometry_list($db_conn, $tbl_shp, $xmin, $xmax, $ymin, $ymax)
+{
+  $db_host = $db_conn['host'];
+  $db_name = $db_conn['user'];
+  $db_pass = $db_conn['passwd'];
+  $database = $db_conn['db'];
+
+  $db_conn = mysql_connect($db_host, $db_name, $db_pass);
+  @mysql_select_db($database) or die ("Could not select db");
+
+  $dst_sql = "SELECT primary_key, xmin, xmax, ymin, ymax, numparts, numpoints, ASTEXT(polygons)     
+        FROM ".$tbl_shp." 
+        WHERE NOT(xmax < ".$xmin." OR ".$xmax." < xmin OR ymax < ".$ymin." OR ".$ymax." < ymin)";
+
+  $geometry_list = array();
+  $result_dst = mysql_query($dst_sql);
+  if($result_dst == FALSE || mysql_num_rows($result_dst) == 0) echo "ERROR: query(".$dst_sql.") for dst elt failed</br>";
+  else
+  {
+    while($row = mysql_fetch_array($result_dst, MYSQL_ASSOC))
+    {
+      // xmin, xmax, ymin, ymax, numparts, numpoints, ASTEXT(polygons)
+      array_push($geometry_list, $row);
+    }
+    return $geometry_list;
+  }
+  return null;
+}
 function get_sql_geometry($tbl_shp, $prikey_name, $prival)
 {
   $dst_sql = "SELECT xmin, xmax, ymin, ymax, numparts, numpoints, ASTEXT(polygons)     
@@ -102,7 +128,7 @@ function get_sql_geometry($tbl_shp, $prikey_name, $prival)
   //echo "_get_sql_geom query: $dst_sql </br>";
 
   $result_dst = mysql_query($dst_sql);
-  if($result_dst == FALSE) echo "ERROR ".$count." query for dst elt failed</br>";
+  if($result_dst == FALSE) echo "ERROR: query(".$dst_sql.") for dst elt failed</br>";
   //else echo "OK ".$count." from query for dst element fetch</br>";
 
   // extent are not accurate

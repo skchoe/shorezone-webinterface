@@ -8,9 +8,10 @@
   $pickorviz = $_GET["pickorviz"];
 ?>
 
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
+<HTML xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
 <HEAD>
-  <style type="text/css">
+  <META http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <STYLE type="text/css">
   h1 {
     font-family:sans-serif; color:black; text-align: center; font-size:120%; }
 
@@ -21,83 +22,90 @@
   .smalltekst {
     font-family:sans-serif; color:black; font-size:80%;
   }
-
-  .coordInputTable {
-    width:20px; 
+  .labels {
+	width:110px;
+	text-align:right; 
+	float:left;
+	margin-right:10px;
   }
-  </style>
+  </STYLE>
 
-  <style type="text/css">
+  <STYLE type="text/css">
     v\:* {
 	behavior:url(#default#VML);
     }
-  </style>
+  </STYLE>
+  <!--style type="text/css"> 
+	input{ 
+	text-align:right; 
+	} 
+  </style-->
 
   <!-- Google Map v2 -->
-  <script src="http://maps.google.com/maps?file=api
-              &v=2
-              &key=AIzaSyCDHLSbvam3dECsm9rcno6KIy6h9ynb98U" 
-          type="text/javascript">
-  </script>
-
-  <title>Query for Shape-layer</title>
+  <!--script src="http://maps.google.com/maps?file=api&v=2&key=AIzaSyCDHLSbvam3dECsm9rcno6KIy6h9ynb98U"type="text/javascript"></script-->
+  <!-- Google Map v3 -->
+  <SCRIPT type="text/javascript" src="//maps.googleapis.com/maps/api/js?v=3&key=AIzaSyCDHLSbvam3dECsm9rcno6KIy6h9ynb98U&sensor=false"></SCRIPT>
+  <TITLE>Query for Shape-layer</TITLE>
 </HEAD>
 
 <BODY onload = "load_szline_data()">
   <TABLE>
-    <INPUT type='hidden' name='Zoom' id="setZoom" value=""/>
+    <TR><TD></TD><TD></TD></TR>
+    <!--INPUT type='hidden' name='Zoom' id="setZoom" value=""/-->
     <TR> 
-	<TD align="center">
-	<H1><FONT COLOR='Teal'>Select Location, query for layers</FONT></H1>
+	<TD align="left">
+		<H1><FONT COLOR='Teal'>Select Location, query for layers</FONT></H1>
 	</TD>
-	<TD>
+	<TD></TD>
+    </TR>
+    <TR>
+	<TD aligh="left" colspan="2">
+        	<FONT COLOR='green'>Click on the map to mark a location and press "Find Object" for a list of ShoreZone layer element estimated to exist there.</FONT>
 	</TD>
     </TR>
     <TR>
-	<TD colspan="2">
-        <FONT COLOR='green'>Click on the map to mark a location and press "Find Object" for a list of ShoreZone layer element estimated to exist there.</FONT>
-	</TD>
-    </TR>
-    <TR>
-	<TD valign="top" rowspan="1">
-	  <DIV id="map" style="width:800px; height:800px;"></DIV>
+	<TD valign="top" rowspan="2">
+	  <DIV id="map" style="width:800px; height:700px;"></DIV>
 	</TD>
 	<TD class="tekst" valign="top">
-	<DIV id="geo">
+	  <DIV id="geo">
 		<FORM method="post" action="">
 		<TABLE>
-		<!--TABLE class="coordInputTable"-->
 		<TR>
-			<input type='hidden' name='Zoom' id="Zoom" value=""></td>
-			<td> Latitude: <input type='text' name='Latitude' id="frmLat" style="width:165px;"></td>
+			<input type='hidden' name='Zoom' id="Zoom" value="">
+			<TD><DIV class=labels><LABEL for="Latitude">Latitude:</LABEL></DIV>
+			    <DIV class=inputs><INPUT type='text' name='Latitude' id="frmLat" style="width:120px; text-align:right"></DIV>
+			    <DIV class=labels><LABEL for="Longitude">Longitude:</LABEL></DIV>
+			    <DIV class=inputs><INPUT type='text' name='Longitude' id="frmLon" style="width:120px; text-align:right"></DIV>
+			</TD>
 		</TR>
 		<TR>
-			<td> Longitude: <input type='text' name='Longitude' id="frmLon" style="width:150px;"></td>
-		</TR>
-		<TR>
-			<td><input type="button" name="Command" value="Find Object" style="width:120px;" onClick="computeExistence(this.form)"> <input type="button" name="Clear" value="Clear Result" style="width:120px;" onClick="clearResultAll()">
-			</td>
+			<TD><input type="button" name="Command" value="Find Object" style="width:120px;" 
+				onClick="computeExistence(this.form)"> 
+				<input type="button" name="Clear" value="Clear Result" style="width:120px;" 
+				onClick="clearResultAll()">
+			</TD>
 		</TR>
 		<TR>
 			<TD rowspan="3">
 	  		<p><i>Query results:</i></p>
-	  		<div style="width: 3360px;" class="smalltekst" id="resultSpanPoly"> </div>
-	  		<div style="width: 3360px;" class="smalltekst" id="resultSpanLine"></div>
-	  		<div style="width: 3360px;" class="smalltekst" id="resultSpanPt"></div>
-	  		<div style="width: 3360px;" class="smalltekst" id="resultSpanLnend"></div>
+	  		<DIV style="width: 3360px;" class="smalltekst" id="resultSpanPoly"> </DIV>
+	  		<DIV style="width: 3360px;" class="smalltekst" id="resultSpanLine"></DIV>
+	  		<DIV style="width: 3360px;" class="smalltekst" id="resultSpanPt"></DIV>
+	  		<DIV style="width: 3360px;" class="smalltekst" id="resultSpanLnend"></DIV>
 			</TD>
 		</TR>
 		</TABLE>
 		</FORM>
-	</DIV>
+	  </DIV>
 	</TD>
     </TR>
     <TR>
-	<TD></TD>
+	<TD class="tekst"><INPUT type="checkbox" name="viewGeometryPolyLine" id="viewGeometryPolyLine">&nbsp;View Poly Lines
+	</TD>
     </TR>
     <TR>
-	<TD valign="top">
-	</TD>
+	<TD colspan="2"><DIV style="width: 3360px;" class="smalltekst" id="note"></DIV></TD>
     </TR>
     </TABLE>
 </BODY>
@@ -105,7 +113,24 @@
 
 <SCRIPT type="text/javascript" src="js/common.js"></SCRIPT>
 <SCRIPT type="text/javascript">
+/*
+Use : new google.maps. in place of G...
 
+GLatLngBounds() --> google.maps.LatLngBounds()
+GlatLng --> google.maps.LatLng
+GPoint --> google.maps.Point
+Event.addListener --> google.maps.event.addListener
+map.getInfoWindow().getPoint --> google.maps.getPosition()
+markers[i].getPoint() --> markers[i].getPosition()
+closeInfoWindow() --> map.InforWindow.Close();
+map.getBoundsZoomLevel(bounds) --> map.fitBounds(bounds)
+markers[i].setImage --> .setIcon
+map.InfoWindow.close() --> create a function to close
+find in maps for objects --> $('#id')[0] or $('#id').get(0) or document.getElementbyId
+
+http://www.mywebexperiences.com/2013/03/05/migrate-google-maps-from-v2-to-v3/
+http://www.absoluteweb.net/google-map-api-v3/
+*/
 	var topLat = 90.0;
 	var westLng = -160.0;
 	var eastLng = 160.0;
@@ -116,16 +141,16 @@
 
 	// Default location <West bound of I-70: junction to I-15>
 	//var setLat = 38.570278;
-	//var setLon = -112.605400;   
+	//var setLng = -112.605400;   
 
 	// Default location <Olympic Mountain, WA>
 	var setLat = 47.736306;
-	var setLon = -123.4;//-122.361603;   
+	var setLng = -123.4;//-122.361603;   
 	var queryZoom = '<?php echo $zoom_query; ?>';   
 	var initZoom = 8;   
 
 	var centerLat = setLat;
-	var centerLng = setLon;
+	var centerLng = setLng;
 
 	var map;
 	var gMarkerArray = new Array();
@@ -135,7 +160,7 @@
 		var lng = form.Longitude.value;
 		var lat = form.Latitude.value;
 
-		drawNewMarker(lat, lng)
+		drawNewMarker(new google.maps.LatLng(lat, lng));
 
 		var zoom_start = '<?php echo $zoom_start; ?>';
 		var zoom_end = '<?php echo $zoom_end; ?>';
@@ -204,82 +229,167 @@
     		return (r.length > 0 ? unescape(r).split(',') : '')
 	}
 	
-	function drawNewMarker(lat, lng)
+	function drawNewMarker(gLatLng)
 	{
-		var gLatLng = new GLatLng(lat, lng);
+		map.panTo(gLatLng);
+
+		var lat = gLatLng.lat();
+		var lng = gLatLng.lng();	
+		lat = lat.toFixed(6);
+		lng = lng.toFixed(6);
+		//var gLatLng = new GLatLng(lat, lng);
+
 		for(var i = 0 ; i < gMarkerArray.length ; i++)
 		{
 			var mkr = gMarkerArray[i];
-			map.removeOverlay(mkr);
+			//map.removeOverlay(mkr);
+			mkr.setMap(null);
 		}
-		var message = "geotagged:\n\tLatitude=" + lat + "\n\tLongitude=" + lng + " "; 
-		var messageRoboGEO = lat + ";" + lng + ""; 
 
-		map.panTo(gLatLng);
-		var markerOptions = { draggable: false, bouncy: false };
-		var marker = new GMarker(gLatLng, markerOptions);
+		//var markerOptions = { draggable: false, bouncy: false };
+		//var marker = new GMarker(gLatLng, markerOptions);
+		var marker = new google.maps.Marker({
+			position: gLatLng, 
+			map: map,
+			draggable: false,
+			bouncy: false});
+		//	markerOptions);
 
 		gMarkerArray[gMarkerArray.length] = marker;
-		map.addOverlay(marker);
+		//map.addOverlay(marker);
+		marker.setMap(map);
 
-		marker.openInfoWindowHtml(message);
+		var messageRoboGEO = "<TABLE><TR><TD align=\"center\" colspan=\"2\"><b>Location</b></TD></TR><TR><TD align=\"right\">Latitude:</TD><TD align=\"right\">"+lat+"</TD></TR><TR><TD align=\"right\">Longitude:</TD><TD align=\"right\">"+lng+"</TD></TR></TABLE>";
+		var infoWindow = new google.maps.InfoWindow({
+				content: messageRoboGEO
+			});
+		infoWindow.open(map, marker);
+
+		//marker.openInfoWindowHtml(message);
 		return true;
 	}
 
 	function drawPolyLine()
 	{
-		var polyline = new GPolyline([new GLatLng(48.994439, -122.760115), new GLatLng(48.989117, -122.773676)], "#00ff00", 2);
-		map.addOverlay(polyline);
+/*
+		//var polyLine = new GPolyline([new GLatLng(48.994439, -122.760115), new GLatLng(48.989117, -122.773676)], "#00ff00", 2);
+		var polyLine = new google.maps.Polyline([new google.maps.LatLng(48.994439, -122.760115), new google.maps.LatLng(48.989117, -122.773676)], "#00ff00", 2);
+		//map.addOverlay(polyLine);
+		polyLine.setMap(map);
+*/
 	}
 
-	function placeMarker(setLat, setLon) 
+	function placeMarker(setLat, setLng) 
 	{
-		var message = "geotagged geo:lat=" + setLat + " geo:lon=" + setLon + " "; 
-		var messageRoboGEO = setLat + ";" + setLon + ""; 
+		var message = "geotagged geo:lat=" + setLat + " geo:lon=" + setLng + " "; 
+		var messageRoboGEO = setLat + ";" + setLng + ""; 
 	  
 		document.getElementById("frmLat").value = setLat;
-		document.getElementById("frmLon").value = setLon;
+		document.getElementById("frmLon").value = setLng;
 		document.getElementById("Zoom").value = queryZoom;
 	  
-		map = new GMap2(document.getElementById("map"));
-		map.addMapType(G_PHYSICAL_MAP);
-		map.setMapType(G_PHYSICAL_MAP);
-		
-		var mt = map.getMapTypes();
-		for(var i=0; i<mt.length ; i++) {
- 			mt[i].getMinimumResolution = function () {return <?php echo $zoom_start ?>;}
- 			mt[i].getMaximumResolution = function () {return <?php echo $zoom_end ?>;}
-		}
+		//var point = new GLatLng(centerLat, centerLng);
+		var point = new google.maps.LatLng(centerLat, centerLng);
+		var zoomStart = <?php echo $zoom_start ?>;
+		var zoomEnd = <?php echo $zoom_end ?>;
 
-		map.addControl(new GLargeMapControl()); // added
-		map.addControl(new GMapTypeControl()); // added
+		var mapOptions = {
+			center: point,
+			zoomControl: true,
+			panControl: true,
+			rotateControl: true,
+			scaleControl: true,
+			scrollwheel: true,
+			mapTypeControl: true,
+			overviewMapControl: true,
+			overviewMpaControlOptions: {opened:true},
+			draggableCursor: 'crosshair',
+			//streetViewControl: true,
+			zoom : initZoom,
+			minZoom :zoomStart,
+			maxZoom :zoomEnd,
+			mapTypeControlOptions: 	{ 
+				mapTypeIds: [	google.maps.MapTypeId.ROADMAP, 
+						google.maps.MapTypeId.TERRAIN, 
+						google.maps.MapTypeId.SATELLITE, 
+						google.maps.MapTypeId.HYBRID],
+				style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR},
+			mapTypeId: google.maps.MapTypeId.TERRAIN };
+
+		//map = new GMap2(document.getElementById("map"));
+		map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+//google.maps.MapTypeId.TERRAIN, google.maps.MapTypeId.SATELLITE, google.maps.MapTypeId.HYBRID
+		//map.addMapType(G_PHYSICAL_MAP);
+		//map.setMapType(G_PHYSICAL_MAP);
+		
+		//var mt = map.getMapTypes();
+		//for(var i=0; i<mt.length ; i++) {
+ 		//	mt[i].getMinimumResolution = function () {return <?php echo $zoom_start ?>;}
+ 		//	mt[i].getMaximumResolution = function () {return <?php echo $zoom_end ?>;}
+		//}
+
+		//map.addControl(new GLargeMapControl()); // added
+		//map.addControl(new GMapTypeControl()); // added
 
 		//overview
-		map.addControl(new GOverviewMapControl(null));
+		//map.addControl(new GOverviewMapControl(null));
 
 		//scale control
-		map.addControl(new GScaleControl(), 
-				new GControlPosition(G_ANCHOR_BOTTOM_LEFT, new GSize(80, 3)));
+		//map.addControl(new GScaleControl(), new GControlPosition(G_ANCHOR_BOTTOM_LEFT, new GSize(80, 3)));
+		//map.addControl(new google.maps.ScaleControl(), new google.maps.ControlPosition(G_ANCHOR_BOTTOM_LEFT, new google.maps.Size(80, 3)));
 
-		var point = new GLatLng(centerLat, centerLng);
 		var threshold = 2.0;
-		var min_pos = new GLatLng(westLng-threshold, bottomLat-threshold, true);
-		var max_pos = new GLatLng(eastLng+threshold, topLat+threshold, true);
-		var bound = new GLatLngBounds(min_pos, max_pos);
+		//var min_pos = new GLatLng(westLng-threshold, bottomLat-threshold, true);
+		var min_pos = new google.maps.LatLng(westLng-threshold, bottomLat-threshold, true);
+		//var max_pos = new GLatLng(eastLng+threshold, topLat+threshold, true);
+		var max_pos = new google.maps.LatLng(eastLng+threshold, topLat+threshold, true);
+		//var bound = new GLatLngBounds(min_pos, max_pos);
+		var bound = new google.maps.LatLngBounds(min_pos, max_pos);
 
- 		map.setCenter(point, initZoom);
+ 		//map.setCenter(point, initZoom); v2
 
-		//marker
-		drawNewMarker(setLat, setLon);
+		// Drawing initial marker when loading the page
+		//var gLatLng = new google.maps.LatLng(setLat, setLng);
+		//drawNewMarker(gLatLng);
 
 		//line
 		drawPolyLine();
+
+		google.maps.event.addListener(	map, 
+						'click', 
+						function(event) 
+						{ 
+							var gLatLng = event.latLng;
+							var success = drawNewMarker(gLatLng);
+							if(success)
+							{
+								document.getElementById("frmLat").value = gLatLng.lat().toFixed(6);
+								document.getElementById("frmLon").value = gLatLng.lng().toFixed(6);
+							}
+						});
+		
+		google.maps.event.addListener(	map,
+						'zoom_changed',
+						function()
+						{
+						});
+
+		
+		google.maps.event.addListener(	map,
+						'dragend',
+						function(event)
+						{
+							ajaxShowNote(map, "szline_dst", "note");
+						});
+/*
 
 		GEvent.addListener(map, 'click', function(overlay, point) 
 		{
 			if (overlay)  // click on bubble
 			{
-				map.removeOverlay(overlay);
+				//map.removeOverlay(overlay);
+				overlay.setMap(null);
 			} 
 			else if (point) 
 			{
@@ -301,34 +411,40 @@
 				{ 
 					var message = "<b>Error extracting info from</b>:" + point + ""; 
 					var messagRoboGEO = message;
+					alert(messageRoboGEO);
 				}
 			}
 		});
+*/
+	}
+
+	function load_szline_data()
+	{
+		alert("Welcome!");
+/*
+                var url = "ajax_loadgeometry.php";
+                url += "?ShapeName="+shp_name;
+                url += "&TableNameDst="+table_name_dst;
+                url += "&meta_names="+meta_names;
+*/
 	}
 
 
 	if (argItems("lat") == '' || argItems("lon") == '') 
 	{
-		placeMarker(setLat, setLon);
+		setLat = setLat.toFixed(6);
+		setLng = setLng.toFixed(6);
+		placeMarker(setLat, setLng);
 	} 
 	else 
 	{
-		var setLat = parseFloat( argItems("lat") );
-		var setLon = parseFloat( argItems("lon") );
-		setLat = setLat.toFixed(6);
-		setLon = setLon.toFixed(6);
-		placeMarker(setLat, setLon);
+		var y = parseFloat( argItems("lat") );
+		var x = parseFloat( argItems("lon") );
+		setLat = y.toFixed(6);
+		setLng = x.toFixed(6);
+		placeMarker(setLat, setLng);
 	}
  
-	function load_szline_data()
-	{
-                var url = "run_load_geometry.php";
-                url += "?ShapeName="+shp_name;
-                url += "&TableNameDst="+table_name_dst;
-                url += "&meta_names="+meta_names;
-
-	}
-
 </SCRIPT>
 
 

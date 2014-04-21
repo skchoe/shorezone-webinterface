@@ -246,5 +246,61 @@ class Wkt2PhpPolygon {
 	}
 	return $arrayPoints;
   }
+
+  private function multiPartsString($arrayParts, $jsonString)
+  {
+        for($i=0;$i<count($arrayParts);$i++)
+        {
+		$eachPartString ='[';
+		for($j=0;$j<count($part) / 2;$j+=2)
+ 		{
+			$x = $part[$j];
+			$y = $part[$j+1];
+			if($j==0) $eachPartString = $eachPartString.'['.$x.','.$y.']';
+			else $eachPartString = $eachPartString.',['.$x.','.$y.']';
+		}
+		$eachPartString .=']';
+
+		if($i==0) $jsonString = $jsonString.$eachPartString;
+		else $jsonString = $jsonString.','.$eachPartString;
+        }
+	$jsonString .= ']}'; 
+
+    	return $jsonString;
+  }
+
+  public function convert2GeoJSON ($multigeom_text) 
+  {
+    $arrayParts = convert($multigeom_text);
+    $geoType = getGeoType($multigeom_text);
+
+    if($arrayParts != null && 0 < count($arrayParts))
+    {
+      $jsonString = "";
+      if($geotype == Shape2Wkt::$GEOTYPE_MULTIPOLYGON)
+      {
+	$jsonString = '{"type":"MultiPolygon","coordinates":[';
+        $jsonString .= multiPartsString($arrayParts);
+      }
+      else if($geotype== Shape2Wkt::$GEOTYPE_MULTILINESTRING)
+      {
+	$jsonString = '{"type":"MultiLineString",\n"coordinates":[\n';
+        $jsonString .= multiPartsString($arrayParts);
+      }
+      else if($geotype == Shape2Wkt::$GEOTYPE_MULTIPOINT)
+      {
+	$jsonString .= '{"type":"MultiPoint","coordinates":[';
+        $jsonString .= multiPartsString($arrayParts);
+      }
+      else
+      {
+      }
+      return $jsonString;
+    }
+    else
+    {
+      return null;
+    }
+  }
 }
 ?>
