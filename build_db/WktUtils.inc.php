@@ -247,15 +247,19 @@ class Wkt2PhpPolygon {
 	return $arrayPoints;
   }
 
-  private function multiPartsString($arrayParts, $jsonString)
+  private function multiPartsString($arrayParts)
   {
+	$jsonString = "";
         for($i=0;$i<count($arrayParts);$i++)
         {
+		$part = $arrayParts[$i];
+
 		$eachPartString ='[';
 		for($j=0;$j<count($part) / 2;$j+=2)
  		{
+			$k = $j+1;
 			$x = $part[$j];
-			$y = $part[$j+1];
+			$y = $part[$k];
 			if($j==0) $eachPartString = $eachPartString.'['.$x.','.$y.']';
 			else $eachPartString = $eachPartString.',['.$x.','.$y.']';
 		}
@@ -271,31 +275,32 @@ class Wkt2PhpPolygon {
 
   public function convert2GeoJSON ($multigeom_text) 
   {
-    $arrayParts = convert($multigeom_text);
-    $geoType = getGeoType($multigeom_text);
+    $geoType = $this->getGeoType($multigeom_text);
+    $shp2wkt = new Shape2Wkt($geoType);
 
-    if($arrayParts != null && 0 < count($arrayParts))
+    if($multigeom_text != null && 0 < count($multigeom_text))
     {
       $jsonString = "";
-      if($geotype == Shape2Wkt::$GEOTYPE_MULTIPOLYGON)
+      if($geoType == Shape2Wkt::$GEOTYPE_MULTIPOLYGON)
       {
 	$jsonString = '{"type":"MultiPolygon","coordinates":[';
-        $jsonString .= multiPartsString($arrayParts);
+        $jsonString .= $this->multiPartsString($multigeom_text);
       }
-      else if($geotype== Shape2Wkt::$GEOTYPE_MULTILINESTRING)
+      else if($geoType== Shape2Wkt::$GEOTYPE_MULTILINESTRING)
       {
 	$jsonString = '{"type":"MultiLineString",\n"coordinates":[\n';
-        $jsonString .= multiPartsString($arrayParts);
+        $jsonString .= $this->multiPartsString($multigeom_text);
       }
-      else if($geotype == Shape2Wkt::$GEOTYPE_MULTIPOINT)
+      else if($geoType == Shape2Wkt::$GEOTYPE_MULTIPOINT)
       {
 	$jsonString .= '{"type":"MultiPoint","coordinates":[';
-        $jsonString .= multiPartsString($arrayParts);
+        $jsonString .= $this->multiPartsString($multigeom_text);
       }
       else
       {
       }
-      return $jsonString;
+      return $geoType;
+      //return $jsonString;
     }
     else
     {

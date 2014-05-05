@@ -100,10 +100,10 @@
 	  </DIV>
 	</TD>
     </TR>
-    <TR>
+    <!--TR>
 	<TD class="tekst"><INPUT type="checkbox" name="viewGeometryPolyLine" id="viewGeometryPolyLine">&nbsp;View Poly Lines
 	</TD>
-    </TR>
+    </TR-->
     <TR>
 	<TD colspan="2"><DIV style="width: 3360px;" class="smalltekst" id="note"></DIV></TD>
     </TR>
@@ -380,7 +380,7 @@ http://www.absoluteweb.net/google-map-api-v3/
 						'dragend',
 						function(event)
 						{
-							ajaxShowNote(map, "szline_dst", "note");
+							//ajaxShowNote(map, "szline_dst", "note");
 						});
 /*
 
@@ -420,7 +420,6 @@ http://www.absoluteweb.net/google-map-api-v3/
 
 	function load_szline_data()
 	{
-		alert("Welcome!");
 /*
                 var url = "ajax_loadgeometry.php";
                 url += "?ShapeName="+shp_name;

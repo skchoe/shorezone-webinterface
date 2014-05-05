@@ -1,5 +1,6 @@
 <?php
 require_once(dirname(__FILE__)."/../../shp-app/mysql_utils.php");
+require_once(dirname(__FILE__)."/../../build_db/WktUtils.inc.php");
 require_once(dirname(__FILE__)."/../../db2tile/db_credentials.php");
 //this script may require additional memory and time
 set_time_limit(10);
@@ -26,21 +27,31 @@ $swlng = (float)$swlng;
 $nelat = (float)$nelat;
 $nelng = (float)$nelng;
 
-$geometry_list = get_sql_geometry_list($db_connect_info, $tbl_shp, $swlng, $nelng, $swlat, $nelat);
-if(0 < count($geometry_list))
+$shp_geometry_list = get_sql_geometry_list($db_connect_info, $tbl_shp, $swlng, $nelng, $swlat, $nelat);
+$geometry_list = array();
+if(0 < count($shp_geometry_list))
 {
-	foreach($geometry_list as $geometryInfo)
+	$wkt2PhpPolygon = new Wkt2PhpPolygon();
+	for($i=0;$i<count($shp_geometry_list);$i++)
 	{
-		$primary_key = $geometryInfo["primary_key"];
-		$xmin = $geometryInfo["xmin"];
-		$xmax = $geometryInfo["xmax"];
-		$ymin = $geometryInfo["ymin"];
-		$ymax = $geometryInfo["ymax"];
-		$numparts = $geometryInfo["numparts"];
-		$numpoints = $geometryInfo["numpoints"];
-		$polygon = $geometryInfo["ASTEXT(polygons)"];
+		$geometry_info = $shp_geometry_list[$i];
+		$primary_key = $geometry_info["primary_key"];
+		$xmin = $geometry_info["xmin"];
+		$xmax = $geometry_info["xmax"];
+		$ymin = $geometry_info["ymin"];
+		$ymax = $geometry_info["ymax"];
+		$numparts = $geometry_info["numparts"];
+		$numpoints = $geometry_info["numpoints"];
+		$polygon = $geometry_info["ASTEXT(polygons)"];
+
+		$jsonString = $wkt2PhpPolygon->convert2GeoJSON($polygon);	
+		//array_push($geometry_list, $jsonString);
+		array_push($geometry_list, $polygon);
 	}
 }
+
+
+
 ?>
 
 <HTML>
@@ -48,8 +59,9 @@ if(0 < count($geometry_list))
 </HEAD>
 <BODY>
 <?php
-	$numPolygon = count($geometry_list);
-	echo "Number of polygons returned: ".$numPolygon;
+	$numPolygon = count($shp_geometry_list);
+	$polygonstr = implode(";", $geometry_list);
+	echo "Number of polygons returned: ".$numPolygon.", ".$polygonstr;
 	flush();
 	@ob_flush();
 ?>
